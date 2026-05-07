@@ -3,57 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OpenTree</title>
+  <title>状态空间</title>
   <style>
-    /* ─── Reset ─── */
+    /* ═══════════════════════════════════════════
+       RESET & TOKENS
+    ═══════════════════════════════════════════ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:         #0c0b0e;
-      --ink:        rgba(245, 238, 228, 0.92);
-      --ink-mid:    rgba(245, 238, 228, 0.60);
-      --ink-dim:    rgba(245, 238, 228, 0.38);
-      --ink-ghost:  rgba(245, 238, 228, 0.18);
-      --accent:     rgba(201, 169, 110, 0.65);
-      --accent-dim: rgba(201, 169, 110, 0.30);
-      --rule:       rgba(201, 169, 110, 0.12);
-      --max-w:      540px;
+      --bg:         #08070a;
+      --ink:        rgba(235, 228, 218, 0.88);
+      --ink-mid:    rgba(235, 228, 218, 0.55);
+      --ink-dim:    rgba(235, 228, 218, 0.32);
+      --ink-ghost:  rgba(235, 228, 218, 0.14);
+      --accent:     rgba(180, 155, 105, 0.55);
+      --accent-dim: rgba(180, 155, 105, 0.22);
+      --rule:       rgba(180, 155, 105, 0.08);
+      --max-w:      480px;
     }
 
     html {
       scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(180,155,105,0.08) transparent;
     }
 
     body {
       min-height: 100vh;
       background: var(--bg);
-      font-family: 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      font-family: 'Helvetica Neue', 'PingFang SC', 'Noto Serif SC', 'Source Han Serif SC', 'Microsoft YaHei', serif;
       color: var(--ink);
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* ─── Page Load Animation ─── */
-    body {
-      animation: pageReveal 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-    }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(180,155,105,0.08); border-radius: 2px; }
 
-    @keyframes pageReveal {
-      0%   { opacity: 0; }
-      100% { opacity: 1; }
-    }
+    /* ═══════════════════════════════════════════
+       ATMOSPHERE — FIXED BACKGROUND LAYERS
+    ═══════════════════════════════════════════ */
 
     /* ─── Grain Texture ─── */
     .grain {
       position: fixed; inset: 0;
       pointer-events: none; z-index: 60;
-      opacity: 0.03;
+      opacity: 0.025;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
       background-size: 200px 200px;
     }
 
-    /* ─── Atmospheric Background ─── */
+    /* ─── Atmosphere Base ─── */
     .atmo {
       position: fixed; inset: 0;
       pointer-events: none; z-index: 0;
@@ -63,33 +65,32 @@
       content: '';
       position: absolute; inset: 0;
       background:
-        radial-gradient(ellipse 120% 80% at 50% 0%, rgba(28,25,35,0.85) 0%, transparent 65%),
-        radial-gradient(ellipse 70% 90% at 10% 100%, rgba(18,16,22,0.9) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 50% at 90% 30%, rgba(22,20,30,0.7) 0%, transparent 65%),
-        #0c0b0e;
-      animation: atmoShift 45s ease-in-out infinite alternate;
+        radial-gradient(ellipse 120% 80% at 50% 0%, rgba(22,20,28,0.7) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 70% at 15% 90%, rgba(16,14,20,0.75) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 85% 25%, rgba(20,18,25,0.5) 0%, transparent 60%),
+        var(--bg);
+      animation: atmoBreathe 50s ease-in-out infinite alternate;
     }
 
     .atmo::after {
       content: '';
       position: absolute; inset: 0;
       background:
-        radial-gradient(ellipse 80% 50% at 25% 70%, rgba(50,45,55,0.18) 0%, transparent 70%),
-        radial-gradient(ellipse 60% 40% at 75% 25%, rgba(45,40,50,0.14) 0%, transparent 70%),
-        radial-gradient(ellipse 100% 30% at 50% 90%, rgba(55,48,58,0.10) 0%, transparent 70%);
-      animation: fogDrift 32s ease-in-out infinite alternate;
+        radial-gradient(ellipse 70% 40% at 30% 65%, rgba(40,36,48,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 35% at 72% 30%, rgba(38,34,45,0.09) 0%, transparent 70%);
+      animation: fogDrift 38s ease-in-out infinite alternate;
     }
 
-    @keyframes atmoShift {
+    @keyframes atmoBreathe {
       0%   { transform: scale(1) translate(0, 0); }
-      50%  { transform: scale(1.04) translate(-1%, 1%); }
-      100% { transform: scale(1.02) translate(1%, -0.5%); }
+      50%  { transform: scale(1.03) translate(-0.5%, 0.5%); }
+      100% { transform: scale(1.01) translate(0.5%, -0.3%); }
     }
 
     @keyframes fogDrift {
       0%   { opacity: 1; transform: translate(0, 0); }
-      50%  { opacity: 0.75; transform: translate(-2%, 1%); }
-      100% { opacity: 1; transform: translate(1.5%, -0.5%); }
+      50%  { opacity: 0.65; transform: translate(-1.5%, 0.8%); }
+      100% { opacity: 1; transform: translate(1%, -0.4%); }
     }
 
     /* ─── Vignette ─── */
@@ -97,53 +98,57 @@
       position: fixed; inset: 0;
       pointer-events: none; z-index: 1;
       background:
-        radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(8,7,10,0.6) 100%);
+        radial-gradient(ellipse 100% 100% at 50% 50%, transparent 30%, rgba(6,5,8,0.65) 100%);
     }
 
-    /* ─── Ambient Orbs ─── */
-    .orbs {
+    /* ─── Per-hexagram Visual Layer ─── */
+    .hex-visual {
       position: fixed; inset: 0;
-      pointer-events: none; z-index: 1;
-      overflow: hidden;
+      pointer-events: none; z-index: 0;
+      opacity: 0;
+      transition: opacity 2.5s ease;
     }
 
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(100px);
-      animation: orbDrift linear infinite;
+    .hex-visual.active { opacity: 1; }
+
+    .hex-smoke {
+      position: absolute; inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.08;
+      animation: smokeDrift 45s ease-in-out infinite alternate;
+      mix-blend-mode: screen;
     }
 
-    .orb:nth-child(1) {
-      width: 60vw; height: 60vw;
-      left: -20%; top: -15%;
-      background: radial-gradient(circle, rgba(30,28,38,0.4) 0%, transparent 70%);
-      animation-duration: 50s;
-      animation-delay: -12s;
-    }
-    .orb:nth-child(2) {
-      width: 45vw; height: 45vw;
-      right: -12%; bottom: -10%;
-      background: radial-gradient(circle, rgba(25,24,35,0.35) 0%, transparent 70%);
-      animation-duration: 70s;
-      animation-delay: -30s;
-    }
-    .orb:nth-child(3) {
-      width: 25vw; height: 25vw;
-      left: 30%; top: 5%;
-      background: radial-gradient(circle, rgba(40,36,48,0.25) 0%, transparent 70%);
-      animation-duration: 60s;
-      animation-delay: -20s;
+    .hex-texture {
+      position: absolute; inset: 0;
+      background-size: 300px 300px;
+      opacity: 0.04;
+      mix-blend-mode: overlay;
     }
 
-    @keyframes orbDrift {
-      0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
-      33%  { transform: translate(2vw, -1vw) scale(1.04) rotate(2deg); }
-      66%  { transform: translate(-1vw, 1.5vw) scale(0.97) rotate(-1deg); }
-      100% { transform: translate(0.5vw, -0.5vw) scale(1.02) rotate(1deg); }
+    .hex-light {
+      position: absolute; inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.06;
+      animation: lightPulse 20s ease-in-out infinite;
+      mix-blend-mode: soft-light;
     }
 
-    /* ─── Floating Particles (very subtle) ─── */
+    @keyframes smokeDrift {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(1%, -0.5%) scale(1.02); }
+      66%  { transform: translate(-0.8%, 0.6%) scale(0.98); }
+      100% { transform: translate(0.5%, -0.3%) scale(1.01); }
+    }
+
+    @keyframes lightPulse {
+      0%, 100% { opacity: 0.06; }
+      50%      { opacity: 0.12; }
+    }
+
+    /* ─── Floating Particles (very sparse) ─── */
     .particles {
       position: fixed; inset: 0;
       pointer-events: none; z-index: 2;
@@ -154,214 +159,291 @@
       position: absolute;
       width: 1px; height: 1px;
       border-radius: 50%;
-      background: rgba(245, 238, 228, 0.15);
-      animation: particleDrift linear infinite;
+      background: rgba(235, 228, 218, 0.12);
+      animation: particleFloat linear infinite;
     }
 
-    @keyframes particleDrift {
+    @keyframes particleFloat {
       0%   { transform: translateY(0) translateX(0); opacity: 0; }
-      20%  { opacity: 0.6; }
-      80%  { opacity: 0.3; }
-      100% { transform: translateY(-20vh) translateX(5vw); opacity: 0; }
+      15%  { opacity: 0.5; }
+      85%  { opacity: 0.2; }
+      100% { transform: translateY(-25vh) translateX(3vw); opacity: 0; }
     }
 
-    /* ══════════════════════════════════════════
-       LAYOUT
-    ══════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════
+       IMMERSIVE PAGE STRUCTURE
+    ═══════════════════════════════════════════ */
 
-    .page {
-      position: relative; z-index: 10;
+    .immersive-page {
+      position: relative;
+      z-index: 10;
     }
 
-    /* ─── Hero Section ─── */
-    .hero {
-      min-height: 100vh;
+    /* ─── Section Base ─── */
+    .immersive-section {
+      min-height: 70vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 80px 32px 120px;
+      padding: 80px 28px;
+      position: relative;
     }
 
-    /* Breathing pulse behind hero */
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 30vmin; height: 30vmin;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(201,169,110,0.04) 0%, transparent 70%);
-      animation: heroPulse 8s ease-in-out infinite;
-      pointer-events: none;
-    }
-
-    @keyframes heroPulse {
-      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
-      50%       { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
-    }
-
-    .hero-eyebrow {
-      font-size: 0.6rem;
-      letter-spacing: 0.5em;
-      color: var(--ink-ghost);
-      text-transform: uppercase;
-      margin-bottom: 40px;
-      opacity: 0;
-      animation: sectionReveal 1.5s ease 0.3s forwards;
-    }
-
-    .hero-title {
-      font-size: clamp(2.8rem, 8vw, 5.5rem);
-      font-weight: 200;
-      letter-spacing: 0.08em;
-      line-height: 1.1;
-      color: var(--ink);
-      text-align: center;
-      max-width: 600px;
-      opacity: 0;
-      animation: sectionReveal 2s ease 0.6s forwards;
-    }
-
-    .hero-divider {
-      width: 1px;
-      height: 60px;
-      background: linear-gradient(to bottom, var(--accent-dim), transparent);
-      margin: 48px 0 40px;
-      opacity: 0;
-      animation: sectionReveal 1.5s ease 1.0s forwards;
-    }
-
-    .hero-body {
-      font-size: clamp(1rem, 2.5vw, 1.15rem);
-      font-weight: 300;
-      line-height: 2.0;
-      color: var(--ink-mid);
-      text-align: center;
-      max-width: var(--max-w);
-      letter-spacing: 0.03em;
-      opacity: 0;
-      animation: sectionReveal 2s ease 1.2s forwards;
-    }
-
-    /* ─── Scroll Fade-in Animation ─── */
-    @keyframes sectionReveal {
-      0%   { opacity: 0; transform: translateY(18px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ─── Section Divider ─── */
-    .section-divider {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 80px 32px 0;
-      gap: 16px;
-    }
-
-    .section-divider::before,
-    .section-divider::after {
-      content: '';
-      flex: 1;
-      max-width: 120px;
-      height: 1px;
-      background: var(--rule);
-    }
-
-    .section-divider-dot {
-      width: 3px; height: 3px;
-      border-radius: 50%;
-      background: var(--accent-dim);
-    }
-
-    /* ─── Sections ─── */
-    .section {
-      padding: 80px 32px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .section-inner {
+    .immersive-section .content-layer {
+      position: relative;
+      z-index: 2;
       width: 100%;
       max-width: var(--max-w);
     }
 
-    .section-label {
-      font-size: 0.58rem;
-      letter-spacing: 0.55em;
-      color: var(--accent-dim);
-      text-transform: uppercase;
-      margin-bottom: 32px;
-      opacity: 0;
-      animation: sectionReveal 1.5s ease forwards;
+    .immersive-section .atmosphere-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
     }
 
-    .section-text {
-      font-size: clamp(1rem, 2.2vw, 1.12rem);
-      font-weight: 300;
-      line-height: 2.1;
-      color: var(--ink-mid);
-      letter-spacing: 0.02em;
-      opacity: 0;
-      animation: sectionReveal 1.8s ease forwards;
+    /* ═══════════════════════════════════════════
+       SECTION 1 — STATE TITLE
+       The hexagram name is dimmed.
+       The dominant text is a "state phrase."
+    ═══════════════════════════════════════════ */
+    .s1-title {
+      min-height: 100vh;
     }
 
-    /* Stagger sections */
-    .section:nth-child(odd) .section-label,
-    .section:nth-child(odd) .section-text {
-      animation-delay: 0.1s;
+    .s1-title .atmosphere-layer {
+      background: radial-gradient(
+        ellipse 35% 35% at 50% 50%,
+        rgba(180,155,105,0.02) 0%, transparent 70%
+      );
+      animation: breathGlow 8s ease-in-out infinite;
     }
 
-    /* ─── Final Reminder ─── */
-    .reminder {
-      padding: 120px 32px 160px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    @keyframes breathGlow {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50%      { opacity: 1; transform: scale(1.08); }
+    }
+
+    .state-phrase {
+      font-size: clamp(1.8rem, 6vw, 3.2rem);
+      font-weight: 200;
+      letter-spacing: 0.12em;
+      line-height: 1.35;
+      color: var(--ink);
       text-align: center;
+      max-width: 420px;
+      margin: 0 auto;
     }
 
-    .reminder-line {
-      width: 1px;
-      height: 60px;
-      background: linear-gradient(to bottom, var(--rule), transparent);
-      margin-bottom: 40px;
-    }
-
-    .reminder-text {
-      font-size: clamp(0.75rem, 1.8vw, 0.85rem);
-      font-weight: 300;
-      letter-spacing: 0.25em;
+    .hex-name {
+      display: block;
+      margin-top: 48px;
+      font-size: 0.65rem;
+      letter-spacing: 0.6em;
       color: var(--ink-ghost);
-      line-height: 2.2;
-      max-width: 380px;
-      opacity: 0;
-      animation: sectionReveal 2s ease forwards;
+      text-transform: uppercase;
+      text-align: center;
+      font-family: 'Helvetica Neue', 'PingFang SC', sans-serif;
     }
 
-    /* ─── Action Row ─── */
+    /* ═══════════════════════════════════════════
+       SECTION 2 — CURRENT STATE
+       Large type, narrow column, generous whitespace.
+    ═══════════════════════════════════════════ */
+    .s2-state {
+      min-height: 80vh;
+    }
+
+    .s2-state .atmosphere-layer {
+      background: radial-gradient(
+        ellipse 60% 40% at 50% 60%,
+        rgba(30,27,38,0.15) 0%, transparent 70%
+      );
+    }
+
+    .state-body {
+      font-size: clamp(1.05rem, 2.5vw, 1.2rem);
+      font-weight: 300;
+      line-height: 2.4;
+      color: var(--ink-mid);
+      letter-spacing: 0.04em;
+      text-align: center;
+      max-width: 380px;
+      margin: 0 auto;
+    }
+
+    /* Thin vertical divider between sections */
+    .section-breath {
+      display: flex;
+      justify-content: center;
+      padding: 20px 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    .section-breath-line {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, transparent, var(--accent-dim), transparent);
+    }
+
+    /* ═══════════════════════════════════════════
+       SECTION 3 — TREND
+       A flowing paragraph as part of the scroll.
+       Not a "trend analysis module."
+    ═══════════════════════════════════════════ */
+    .s3-trend {
+      min-height: 75vh;
+    }
+
+    .s3-trend .atmosphere-layer {
+      background: radial-gradient(
+        ellipse 50% 50% at 40% 40%,
+        rgba(35,32,42,0.1) 0%, transparent 70%
+      );
+    }
+
+    .trend-body {
+      font-size: clamp(0.95rem, 2.2vw, 1.08rem);
+      font-weight: 300;
+      line-height: 2.6;
+      color: var(--ink-dim);
+      letter-spacing: 0.03em;
+    }
+
+    /* ═══════════════════════════════════════════
+       SECTION 4 — ACTION / SCENE
+       Written as a scene description, not advice.
+    ═══════════════════════════════════════════ */
+    .s4-action {
+      min-height: 70vh;
+    }
+
+    .s4-action .atmosphere-layer {
+      background: radial-gradient(
+        ellipse 45% 45% at 60% 55%,
+        rgba(28,25,35,0.12) 0%, transparent 70%
+      );
+    }
+
+    .action-scene {
+      font-size: clamp(0.95rem, 2.2vw, 1.08rem);
+      font-weight: 300;
+      line-height: 2.5;
+      color: var(--ink-dim);
+      letter-spacing: 0.03em;
+    }
+
+    /* ═══════════════════════════════════════════
+       SECTION 5 — RESONANCE
+       Short, light. Like a trailing echo.
+    ═══════════════════════════════════════════ */
+    .s5-resonance {
+      min-height: 50vh;
+      padding-bottom: 140px;
+    }
+
+    .resonance-text {
+      font-size: clamp(0.78rem, 1.6vw, 0.88rem);
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      color: var(--ink-ghost);
+      line-height: 2.4;
+      text-align: center;
+      max-width: 320px;
+      margin: 0 auto;
+    }
+
+    /* ═══════════════════════════════════════════
+       SCROLL REVEAL
+    ═══════════════════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  transform 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Stagger children inside a revealed section */
+    .immersive-section .reveal:nth-child(2) { transition-delay: 0.15s; }
+    .immersive-section .reveal:nth-child(3) { transition-delay: 0.3s; }
+
+    /* ═══════════════════════════════════════════
+       OPACITY BREATHING (subtle)
+    ═══════════════════════════════════════════ */
+    .breathe {
+      animation: opacityBreathe 6s ease-in-out infinite;
+    }
+
+    @keyframes opacityBreathe {
+      0%, 100% { opacity: 0.55; }
+      50%      { opacity: 0.85; }
+    }
+
+    .breathe-slow {
+      animation: opacityBreathe 10s ease-in-out infinite;
+    }
+
+    /* ═══════════════════════════════════════════
+       YAOS BAR (top right, subtle)
+    ═══════════════════════════════════════════ */
+    .yaos-bar {
+      position: fixed;
+      top: 28px; right: 28px;
+      z-index: 50;
+      display: flex;
+      gap: 5px;
+      opacity: 0;
+      animation: fadeIn 2s ease 2.5s forwards;
+    }
+
+    .yao-pip {
+      width: 3px;
+      height: 10px;
+      border-radius: 1.5px;
+      background: var(--ink-ghost);
+      transition: all 0.4s ease;
+    }
+
+    .yao-pip.yang {
+      background: var(--accent-dim);
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    /* ═══════════════════════════════════════════
+       ACTION ROW (bottom)
+    ═══════════════════════════════════════════ */
     .action-row {
       position: fixed;
       bottom: 0; left: 0; right: 0;
       z-index: 50;
-      padding: 24px 32px 32px;
+      padding: 20px 28px 28px;
       display: flex;
       justify-content: center;
-      gap: 32px;
-      background: linear-gradient(to top, rgba(12,11,14,0.9) 0%, transparent 100%);
+      gap: 28px;
+      background: linear-gradient(to top, rgba(8,7,10,0.85) 0%, transparent 100%);
       opacity: 0;
-      animation: fadeUp 1.5s ease 1.8s forwards;
+      animation: fadeUp 1.5s ease 2s forwards;
       pointer-events: none;
     }
 
     @keyframes fadeUp {
-      0%   { opacity: 0; transform: translateY(10px); }
+      0%   { opacity: 0; transform: translateY(8px); }
       100% { opacity: 1; transform: translateY(0); pointer-events: all; }
     }
 
     .action-btn {
-      font-size: 0.62rem;
+      font-size: 0.6rem;
       letter-spacing: 0.3em;
       color: var(--ink-ghost);
       background: none;
@@ -370,120 +452,90 @@
       font-family: inherit;
       text-transform: uppercase;
       padding: 8px 0;
-      transition: color 0.4s ease;
+      transition: color 0.5s ease;
     }
 
-    .action-btn:hover {
-      color: var(--ink-mid);
-    }
+    .action-btn:hover { color: var(--ink-mid); }
+    .action-btn.primary { color: var(--accent-dim); }
+    .action-btn.primary:hover { color: var(--ink-mid); }
 
-    .action-btn.primary {
-      color: var(--accent);
-    }
-
-    .action-btn.primary:hover {
-      color: var(--ink-mid);
-    }
-
-    /* ─── Yaos (subtle, almost hidden) ─── */
-    .yaos-bar {
-      position: fixed;
-      top: 32px; right: 32px;
-      z-index: 50;
-      display: flex;
-      gap: 6px;
-      opacity: 0;
-      animation: fadeUp 1.5s ease 2.2s forwards;
-    }
-
-    .yao-pip {
-      width: 4px;
-      height: 12px;
-      border-radius: 2px;
-      background: var(--ink-ghost);
-      transition: all 0.3s ease;
-    }
-
-    .yao-pip.yang {
-      background: var(--accent-dim);
-    }
-
-    /* ─── AI Modal ─── */
+    /* ═══════════════════════════════════════════
+       AI MODAL (unchanged functionally)
+    ═══════════════════════════════════════════ */
     .ai-modal-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(12, 11, 14, 0.88);
+      background: rgba(8, 7, 10, 0.9);
       z-index: 200;
       justify-content: center;
       align-items: flex-end;
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(10px);
     }
 
     .ai-modal-overlay.active { display: flex; }
 
     .ai-modal {
-      background: rgba(18, 17, 22, 0.96);
-      border: 1px solid rgba(201, 169, 110, 0.08);
-      border-radius: 24px 24px 0 0;
+      background: rgba(14, 13, 18, 0.97);
+      border: 1px solid rgba(180, 155, 105, 0.06);
+      border-radius: 20px 20px 0 0;
       width: 100%;
-      max-width: 680px;
+      max-width: 640px;
       max-height: 88vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      backdrop-filter: blur(20px);
     }
 
     .ai-modal-handle {
-      width: 36px; height: 4px;
-      border-radius: 2px;
-      background: rgba(245, 238, 228, 0.1);
-      margin: 14px auto 0;
+      width: 32px; height: 3px;
+      border-radius: 1.5px;
+      background: rgba(235, 228, 218, 0.08);
+      margin: 12px auto 0;
     }
 
     .ai-header {
-      padding: 16px 28px 14px;
-      border-bottom: 1px solid rgba(245, 238, 228, 0.05);
+      padding: 14px 24px 12px;
+      border-bottom: 1px solid rgba(235, 228, 218, 0.04);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
     .ai-header-title {
-      font-size: 0.6rem;
+      font-size: 0.58rem;
       letter-spacing: 0.35em;
       color: var(--ink-ghost);
       text-transform: uppercase;
     }
 
     .ai-tier-badge {
-      font-size: 0.58rem;
-      letter-spacing: 0.2em;
+      font-size: 0.55rem;
+      letter-spacing: 0.18em;
       color: var(--accent-dim);
-      padding: 3px 10px;
-      border: 1px solid rgba(201,169,110,0.15);
+      padding: 2px 8px;
+      border: 1px solid rgba(180,155,105,0.1);
       border-radius: 100px;
     }
 
     .ai-messages {
       flex: 1;
       overflow-y: auto;
-      padding: 20px 28px;
+      padding: 18px 24px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       min-height: 0;
     }
 
-    .ai-messages::-webkit-scrollbar { width: 3px; }
+    .ai-messages::-webkit-scrollbar { width: 2px; }
     .ai-messages::-webkit-scrollbar-track { background: transparent; }
-    .ai-messages::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.1); border-radius: 2px; }
+    .ai-messages::-webkit-scrollbar-thumb { background: rgba(180,155,105,0.08); border-radius: 1px; }
 
     .ai-msg {
       max-width: 88%;
       line-height: 1.75;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 300;
       letter-spacing: 0.02em;
     }
@@ -491,28 +543,28 @@
     .ai-msg.user {
       align-self: flex-end;
       color: var(--ink-mid);
-      padding: 10px 18px;
-      border: 1px solid rgba(245, 238, 228, 0.08);
-      border-radius: 18px 18px 4px 18px;
+      padding: 8px 16px;
+      border: 1px solid rgba(235, 228, 218, 0.06);
+      border-radius: 16px 16px 4px 16px;
     }
 
     .ai-msg.ai {
       align-self: flex-start;
       color: var(--ink-mid);
-      padding: 12px 20px;
-      border-radius: 18px 18px 18px 4px;
-      border: 1px solid rgba(245, 238, 228, 0.06);
+      padding: 10px 18px;
+      border-radius: 16px 16px 16px 4px;
+      border: 1px solid rgba(235, 228, 218, 0.04);
     }
 
-    .ai-msg.ai p { margin-bottom: 6px; }
+    .ai-msg.ai p { margin-bottom: 5px; }
     .ai-msg.ai p:last-child { margin-bottom: 0; }
 
     .ai-welcome {
       text-align: center;
       color: var(--ink-ghost);
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       letter-spacing: 0.15em;
-      padding: 20px 0;
+      padding: 18px 0;
     }
 
     .ai-loading {
@@ -520,7 +572,7 @@
     }
 
     .ai-loading span {
-      width: 4px; height: 4px;
+      width: 3px; height: 3px;
       border-radius: 50%;
       background: var(--ink-ghost);
       animation: loadDot 1.2s infinite;
@@ -535,59 +587,58 @@
     }
 
     .ai-input-area {
-      padding: 14px 20px 32px;
-      border-top: 1px solid rgba(245, 238, 228, 0.05);
-      display: flex; gap: 10px; align-items: flex-end;
+      padding: 12px 18px 28px;
+      border-top: 1px solid rgba(235, 228, 218, 0.04);
+      display: flex; gap: 8px; align-items: flex-end;
     }
 
     .ai-input {
       flex: 1;
-      background: rgba(245, 238, 228, 0.04);
-      border: 1px solid rgba(245, 238, 228, 0.08);
-      border-radius: 16px;
-      padding: 12px 18px;
-      font-size: 0.9rem;
+      background: rgba(235, 228, 218, 0.03);
+      border: 1px solid rgba(235, 228, 218, 0.06);
+      border-radius: 14px;
+      padding: 10px 16px;
+      font-size: 0.88rem;
       font-family: inherit;
       color: var(--ink-mid);
       resize: none;
       outline: none;
       line-height: 1.5;
-      min-height: 48px; max-height: 100px;
+      min-height: 44px; max-height: 90px;
       transition: border-color 0.3s;
     }
 
     .ai-input:focus {
-      border-color: rgba(201, 169, 110, 0.2);
-      background: rgba(245, 238, 228, 0.06);
+      border-color: rgba(180, 155, 105, 0.15);
+      background: rgba(235, 228, 218, 0.05);
     }
 
     .ai-input::placeholder { color: var(--ink-ghost); }
 
     .ai-send {
-      width: 48px; height: 48px;
-      border-radius: 16px;
+      width: 44px; height: 44px;
+      border-radius: 14px;
       border: none;
-      background: rgba(201, 169, 110, 0.12);
+      background: rgba(180, 155, 105, 0.08);
       color: var(--accent);
-      font-size: 1.1rem;
+      font-size: 1rem;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
       transition: all 0.25s;
     }
 
-    .ai-send:hover { background: rgba(201, 169, 110, 0.2); }
-    .ai-send:disabled { opacity: 0.3; cursor: not-allowed; }
+    .ai-send:hover { background: rgba(180, 155, 105, 0.15); }
+    .ai-send:disabled { opacity: 0.25; cursor: not-allowed; }
 
-    /* ─── Upgrade hint ─── */
     .ai-upgrade {
-      margin: 0 28px 16px;
-      padding: 16px 20px;
-      border: 1px solid rgba(201,169,110,0.1);
-      border-radius: 14px;
-      background: rgba(201,169,110,0.04);
+      margin: 0 24px 14px;
+      padding: 14px 18px;
+      border: 1px solid rgba(180,155,105,0.08);
+      border-radius: 12px;
+      background: rgba(180,155,105,0.03);
       text-align: center;
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       color: var(--ink-ghost);
       letter-spacing: 0.1em;
       display: none;
@@ -595,114 +646,147 @@
 
     .ai-upgrade.active { display: block; }
 
-    /* ─── Responsive ─── */
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════ */
     @media (max-width: 600px) {
-      .hero { padding: 60px 24px 100px; }
-      .section { padding: 64px 24px; }
-      .reminder { padding: 100px 24px 140px; }
-      .hero-title { font-size: clamp(2.2rem, 10vw, 3.5rem); }
-      .yaos-bar { top: 20px; right: 20px; }
-      .ai-modal { border-radius: 20px 20px 0 0; }
+      .immersive-section { padding: 64px 22px; min-height: 65vh; }
+      .s1-title { min-height: 85vh; }
+      .state-phrase { font-size: clamp(1.5rem, 8vw, 2.5rem); }
+      .yaos-bar { top: 18px; right: 18px; }
+      .resonance-text { font-size: 0.72rem; }
     }
 
-    /* ─── Scroll-driven reveal (Intersection Observer) ─── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                  transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    /* ═══════════════════════════════════════════
+       PAGE LOAD FADE-IN
+    ═══════════════════════════════════════════ */
+    body {
+      animation: pageIn 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
     }
 
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
+    @keyframes pageIn {
+      0%   { opacity: 0; }
+      100% { opacity: 1; }
     }
 
-    /* ─── Long text paragraphs get extra breathing room ─── */
-    .section-text.breathing {
-      line-height: 2.3;
-      font-size: clamp(1.05rem, 2.3vw, 1.18rem);
+    /* ═══════════════════════════════════════════
+       RISK TEXT (softer tint)
+    ═══════════════════════════════════════════ */
+    .risk-note {
+      margin-top: 56px;
+      padding-top: 40px;
+      border-top: 1px solid var(--rule);
     }
 
-    /* ─── Risk section gets a different tint ─── */
-    .section.risk .section-label { color: rgba(180, 140, 110, 0.4); }
-    .section.risk .section-text { color: rgba(245, 238, 228, 0.50); }
+    .risk-note p {
+      font-size: clamp(0.82rem, 1.8vw, 0.92rem);
+      font-weight: 300;
+      line-height: 2.2;
+      color: var(--ink-ghost);
+      letter-spacing: 0.04em;
+    }
+
+    .risk-label {
+      display: block;
+      font-size: 0.55rem;
+      letter-spacing: 0.5em;
+      color: rgba(180, 140, 110, 0.25);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Atmosphere -->
+  <!-- Fixed Atmosphere Layers -->
   <div class="atmo"></div>
-  <div class="orbs">
-    <div class="orb"></div>
-    <div class="orb"></div>
-    <div class="orb"></div>
-  </div>
   <div class="vignette"></div>
   <div class="grain"></div>
+
+  <!-- Per-Hexagram Visual Layer (activated by JS) -->
+  <div class="hex-visual" id="hexVisual">
+    <div class="hex-smoke" id="hexSmoke"></div>
+    <div class="hex-texture" id="hexTexture"></div>
+    <div class="hex-light" id="hexLight"></div>
+  </div>
 
   <!-- Particles -->
   <div class="particles" id="particles"></div>
 
-  <!-- Page -->
-  <div class="page" id="app">
+  <!-- ═══════════════════════════════════════════
+       IMMERSIVE SCROLL PAGE
+  ═══════════════════════════════════════════ -->
+  <div class="immersive-page" id="app">
 
-    <!-- Hero -->
-    <section class="hero">
-      <div class="hero-eyebrow" id="eyebrow">此刻的状态</div>
-      <h1 class="hero-title" id="heroTitle">—</h1>
-      <div class="hero-divider"></div>
-      <p class="hero-body" id="heroBody">—</p>
-    </section>
-
-    <!-- Divider -->
-    <div class="section-divider">
-      <span class="section-divider-dot"></span>
-    </div>
-
-    <!-- Trend -->
-    <section class="section">
-      <div class="section-inner">
-        <div class="section-label reveal">趋势感知</div>
-        <p class="section-text breathing reveal" id="trendText">—</p>
+    <!-- ─── Section 1: State Title ─── -->
+    <section class="immersive-section s1-title">
+      <div class="atmosphere-layer"></div>
+      <div class="content-layer">
+        <p class="state-phrase reveal" id="statePhrase">—</p>
+        <span class="hex-name reveal" id="hexName">—</span>
       </div>
     </section>
 
-    <!-- Divider -->
-    <div class="section-divider">
-      <span class="section-divider-dot"></span>
+    <!-- Breath -->
+    <div class="section-breath">
+      <div class="section-breath-line"></div>
     </div>
 
-    <!-- Mind -->
-    <section class="section">
-      <div class="section-inner">
-        <div class="section-label reveal">行动建议</div>
-        <p class="section-text breathing reveal" id="mindText">—</p>
+    <!-- ─── Section 2: Current State ─── -->
+    <section class="immersive-section s2-state">
+      <div class="atmosphere-layer"></div>
+      <div class="content-layer">
+        <p class="state-body breathe-slow reveal" id="stateBody">—</p>
       </div>
     </section>
 
-    <!-- Divider -->
-    <div class="section-divider">
-      <span class="section-divider-dot"></span>
+    <!-- Breath -->
+    <div class="section-breath">
+      <div class="section-breath-line"></div>
     </div>
 
-    <!-- Risk -->
-    <section class="section risk">
-      <div class="section-inner">
-        <div class="section-label reveal">特别注意</div>
-        <p class="section-text breathing reveal" id="riskText">—</p>
+    <!-- ─── Section 3: Trend ─── -->
+    <section class="immersive-section s3-trend">
+      <div class="atmosphere-layer"></div>
+      <div class="content-layer">
+        <p class="trend-body reveal" id="trendBody">—</p>
       </div>
     </section>
 
-    <!-- Reminder -->
-    <div class="reminder">
-      <div class="reminder-line reveal"></div>
-      <p class="reminder-text reveal" id="reminderText">状态不是答案。<br>它是提问的开始。</p>
+    <!-- Breath -->
+    <div class="section-breath">
+      <div class="section-breath-line"></div>
     </div>
+
+    <!-- ─── Section 4: Action / Scene ─── -->
+    <section class="immersive-section s4-action">
+      <div class="atmosphere-layer"></div>
+      <div class="content-layer">
+        <p class="action-scene reveal" id="actionScene">—</p>
+
+        <!-- Risk as a quiet footnote -->
+        <div class="risk-note reveal" id="riskNote">
+          <span class="risk-label">留意</span>
+          <p id="riskText">—</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Breath -->
+    <div class="section-breath">
+      <div class="section-breath-line"></div>
+    </div>
+
+    <!-- ─── Section 5: Resonance ─── -->
+    <section class="immersive-section s5-resonance">
+      <div class="content-layer" style="text-align:center;">
+        <p class="resonance-text reveal" id="resonanceText">状态不是答案。<br>它是提问的开始。</p>
+      </div>
+    </section>
 
   </div>
 
-  <!-- Yaos indicator (top right) -->
+  <!-- Yaos indicator -->
   <div class="yaos-bar" id="yaosBar"></div>
 
   <!-- Action row -->
@@ -721,7 +805,7 @@
       </div>
       <div class="ai-upgrade" id="aiUpgradeHint">今日免费额度已用完 · 深入对话请订阅</div>
       <div class="ai-messages" id="aiMessages">
-        <div class="ai-welcome">说出你的困惑<br><span style="font-size:0.68rem;opacity:0.5;margin-top:6px;display:block;">系统正在感知你的状态场</span></div>
+        <div class="ai-welcome">说出你的困惑<br><span style="font-size:0.65rem;opacity:0.45;margin-top:6px;display:block;">系统正在感知你的状态场</span></div>
       </div>
       <div class="ai-input-area">
         <textarea class="ai-input" id="aiInput" rows="1" placeholder="说出你的困惑..."></textarea>
@@ -734,38 +818,47 @@
   <script src="js/api.js?v=2"></script>
   <script src="js/app.js?v=2"></script>
   <script>
-    /* ── Generate particles ── */
+    /* ── Particles ── */
     (function() {
-      const container = document.getElementById('particles');
-      for (let i = 0; i < 18; i++) {
+      const c = document.getElementById('particles');
+      for (let i = 0; i < 12; i++) {
         const p = document.createElement('div');
         p.className = 'particle';
         p.style.cssText = `
           left: ${Math.random() * 100}%;
-          top: ${60 + Math.random() * 40}%;
-          animation-duration: ${12 + Math.random() * 20}s;
-          animation-delay: ${-Math.random() * 20}s;
-          opacity: ${0.2 + Math.random() * 0.4};
+          top: ${55 + Math.random() * 45}%;
+          animation-duration: ${14 + Math.random() * 22}s;
+          animation-delay: ${-Math.random() * 25}s;
+          opacity: ${0.15 + Math.random() * 0.3};
         `;
-        container.appendChild(p);
+        c.appendChild(p);
       }
     })();
 
-    /* ── Intersection Observer for scroll reveals ── */
+    /* ── Intersection Observer ── */
     (function() {
-      const observer = new IntersectionObserver((entries) => {
+      const obs = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
+            obs.unobserve(entry.target);
           }
         });
-      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+      }, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
 
-      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+      document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
     })();
 
-    /* ── Load hexagram data ── */
+    /* ── State Phrase Mapping ── */
+    /* Transforms hexagram summary into a "state observation" phrase */
+    function toStatePhrase(summary) {
+      if (!summary || summary === '—') return '有些东西正在等待被看见';
+      // Use the summary directly — it's already poetic Chinese
+      // But wrap it as an observation, not a label
+      return summary;
+    }
+
+    /* ── Load hexagram data & populate sections ── */
     let currentHexagramId = null;
     let currentYaos = null;
     let subStatus = { tier: 'free', remaining: 3 };
@@ -779,8 +872,7 @@
         const parts = seed.split('|');
         let ts, uid;
         if (parts.length >= 3) {
-          ts = parts[0];
-          uid = parts[2];
+          ts = parts[0]; uid = parts[2];
         } else {
           [ts, , uid] = parts;
         }
@@ -790,23 +882,70 @@
         currentHexagramId = result.main.id;
         currentYaos = result.main.yaos;
 
-        /* Populate content */
-        document.getElementById('heroTitle').textContent = result.summary;
-        document.getElementById('heroBody').textContent = seg.status;
-        document.getElementById('trendText').textContent = seg.trend;
-        document.getElementById('mindText').textContent = seg.mind;
+        /* Section 1: State title */
+        document.getElementById('statePhrase').textContent = toStatePhrase(result.summary);
+        /* Hex name dimmed */
+        document.getElementById('hexName').textContent =
+          (result.main.id || '').replace('Q', '第') + '卦';
+
+        /* Section 2: Current state */
+        document.getElementById('stateBody').textContent = seg.status;
+
+        /* Section 3: Trend */
+        document.getElementById('trendBody').textContent = seg.trend;
+
+        /* Section 4: Action scene + risk */
+        document.getElementById('actionScene').textContent = seg.mind;
         document.getElementById('riskText').textContent = seg.risk;
 
-        /* Render yaos bar (top right) */
+        /* Section 5: Resonance — use a quiet version of the summary */
+        // Keep the default resonance text unless we want to personalize
+
+        /* Yaos bar */
         const yaosBar = document.getElementById('yaosBar');
         yaosBar.innerHTML = (currentYaos || []).map(y =>
           `<div class="yao-pip ${(y === 7 || y === 9) ? 'yang' : 'yin'}"></div>`
         ).join('');
 
+        /* Activate per-hexagram visual layer */
+        loadHexVisuals(currentHexagramId);
+
       } catch(e) {
         console.warn('Failed to load hexagram:', e.message);
       }
     })();
+
+    /* ── Per-hexagram visual asset loader ── */
+    function loadHexVisuals(hexId) {
+      const visual = document.getElementById('hexVisual');
+      const smoke = document.getElementById('hexSmoke');
+      const texture = document.getElementById('hexTexture');
+      const light = document.getElementById('hexLight');
+
+      const basePath = `/assets/visual/${hexId}`;
+
+      // Try loading each asset; if 404, the element stays empty (invisible)
+      const assets = [
+        { el: smoke,   path: `${basePath}/smoke.webp`,   prop: 'backgroundImage' },
+        { el: texture, path: `${basePath}/texture.webp`,  prop: 'backgroundImage' },
+        { el: light,   path: `${basePath}/light.webp`,    prop: 'backgroundImage' },
+      ];
+
+      let loadedAny = false;
+
+      assets.forEach(({ el, path, prop }) => {
+        const img = new Image();
+        img.onload = () => {
+          el.style[prop] = `url('${path}')`;
+          loadedAny = true;
+          visual.classList.add('active');
+        };
+        img.onerror = () => {
+          // Asset doesn't exist yet — silently skip
+        };
+        img.src = path;
+      });
+    }
 
     /* ── AI Chat ── */
     const modal   = document.getElementById('aiModal');
@@ -841,7 +980,7 @@
 
     inputEl.addEventListener('input', () => {
       inputEl.style.height = 'auto';
-      inputEl.style.height = Math.min(inputEl.scrollHeight, 100) + 'px';
+      inputEl.style.height = Math.min(inputEl.scrollHeight, 90) + 'px';
       sendBtn.disabled = !inputEl.value.trim();
     });
 
@@ -880,7 +1019,7 @@
           aiEl.innerHTML = '<p>今日免费额度已用完，明日可继续，或订阅深入对话。</p>';
           renderStatusBar();
         } else {
-          aiEl.innerHTML = `<p style="color:rgba(180,140,110,0.8);">${e.message || '系统暂时不可用'}</p>`;
+          aiEl.innerHTML = `<p style="color:rgba(180,140,110,0.7);">${e.message || '系统暂时不可用'}</p>`;
         }
       }
     }
