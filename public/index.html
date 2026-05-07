@@ -44,17 +44,6 @@
       pointer-events: none; z-index: 0;
     }
 
-    /* Deep gradient base */
-    .atmo::before {
-      content: '';
-      position: absolute; inset: 0;
-      background:
-        radial-gradient(ellipse 120% 80% at 50% 0%, rgba(30,28,35,0.8) 0%, transparent 70%),
-        radial-gradient(ellipse 80% 60% at 20% 100%, rgba(20,18,25,0.9) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 80% at 80% 20%, rgba(25,22,30,0.6) 0%, transparent 60%),
-        var(--bg);
-    }
-
     /* Fog layers */
     .atmo::after {
       content: '';
@@ -131,10 +120,32 @@
       background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(8,7,10,0.55) 100%);
     }
 
-    /* ─── Hero Content ─── */
+    /* ═══════════════════════════════════════
+       HERO — 三层结构 (hero-bg / hero-overlay / hero-content)
+       背景图: /var/www/zen-tap/public/opentree-hero.jpg
+    ═══════════════════════════════════════ */
     .hero {
       position: fixed; inset: 0;
-      z-index: 10;
+      z-index: 2;
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0;
+      pointer-events: none;
+      background-image: url('opentree-hero.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .hero-overlay {
+      position: absolute; inset: 0;
+      pointer-events: none;
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    .hero-content {
+      position: relative;
+      width: 100%; height: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -142,14 +153,16 @@
       padding: 40px 24px;
       text-align: center;
     }
+    /* ═══════════════════════════════════════ */
 
+    /* ─── Hero Content ─── */
     .hero-title {
       font-size: clamp(1.6rem, 4vw, 2.2rem);
       font-weight: 200;
       letter-spacing: 0.35em;
       color: var(--ink);
-      opacity: 0;
-      animation: fadeUp 2s ease 0.5s forwards;
+      opacity: 1;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.5);
     }
 
     .hero-sub {
@@ -158,13 +171,8 @@
       font-weight: 300;
       letter-spacing: 0.4em;
       color: var(--ink-dim);
-      opacity: 0;
-      animation: fadeUp 2s ease 1.2s forwards;
-    }
-
-    @keyframes fadeUp {
-      0%   { opacity: 0; transform: translateY(12px); }
-      100% { opacity: 1; transform: translateY(0); }
+      opacity: 1;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.8);
     }
 
     /* ─── Idle Hint ─── */
@@ -172,19 +180,13 @@
       position: fixed;
       bottom: 36px; left: 50%;
       transform: translateX(-50%);
-      z-index: 10;
+      z-index: 3;
       font-size: 0.62rem;
       letter-spacing: 0.3em;
       color: var(--ink-ghost);
-      opacity: 0;
-      animation: hintFade 2s ease 2.5s forwards;
-      transition: opacity 1s ease;
+      opacity: 1;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.8);
       white-space: nowrap;
-    }
-
-    @keyframes hintFade {
-      0%   { opacity: 0; }
-      100% { opacity: 1; }
     }
 
     .idle-hint.hidden { opacity: 0 !important; }
@@ -192,7 +194,7 @@
     /* ─── Touch Zone (invisible interaction area) ─── */
     .touch-zone {
       position: fixed; inset: 0;
-      z-index: 20;
+      z-index: 4;
       cursor: pointer;
       /* no visible style */
     }
@@ -204,7 +206,7 @@
       pointer-events: none;
       z-index: 30;
       transform: translate(-50%, -50%) scale(0);
-      opacity: 0;
+      opacity: 1;
       animation: rippleAnim 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
     }
 
@@ -271,14 +273,18 @@
   <div class="vignette"></div>
   <div class="grain"></div>
 
+  <!-- Hero: 三层结构 -->
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-title">OpenTree</div>
+      <div class="hero-sub">轻触开始</div>
+    </div>
+  </div>
+
   <!-- Touch zone (full screen invisible) -->
   <div class="touch-zone" id="touchZone"></div>
-
-  <!-- Hero text -->
-  <div class="hero">
-    <div class="hero-title">OpenTree</div>
-    <div class="hero-sub">轻触开始</div>
-  </div>
 
   <!-- Idle hint -->
   <div class="idle-hint" id="idleHint">任意位置</div>
@@ -297,15 +303,15 @@
     function createRipple(x, y) {
       const el = document.createElement('div');
       el.className = 'ripple';
-      el.style.cssText = `
-        left: ${x}px; top: ${y}px;
+      el.style.cssText = \`
+        left: \${x}px; top: \${y}px;
         width: 100px; height: 100px;
         background: radial-gradient(circle,
           rgba(201,169,110,0.18) 0%,
           rgba(201,169,110,0.06) 50%,
           transparent 70%);
         border: 1px solid rgba(201,169,110,0.12);
-      `;
+      \`;
       document.body.appendChild(el);
       setTimeout(() => el.remove(), 1400);
     }
@@ -325,14 +331,13 @@
 
       createRipple(x, y);
 
-      // Small delay for the ripple to register, then transition
       setTimeout(() => {
         overlay.classList.add('active');
         ring.classList.add('active');
 
         setTimeout(() => {
-          const seed = `${ts}|${x},${y}|${uid}`;
-          window.location.href = `content.html?seed=${encodeURIComponent(seed)}`;
+          const seed = \`\${ts}|\${x},\${y}|\${uid}\`;
+          window.location.href = \`content.html?seed=\${encodeURIComponent(seed)}\`;
         }, 700);
       }, 100);
     });
