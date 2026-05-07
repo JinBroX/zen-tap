@@ -1,0 +1,253 @@
+// -------------------- Zen-Tap 核心逻辑 --------------------
+
+// -------------------- 工具函数 --------------------
+async function sha256Hex(str) {
+  const enc = new TextEncoder();
+  const data = enc.encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const bytes = new Uint8Array(hashBuffer);
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function xorshift32(seed) {
+  let x = seed >>> 0;
+  return function() {
+    x ^= x << 13; x >>>= 0;
+    x ^= x >>> 17; x >>>= 0;
+    x ^= x << 5; x >>>= 0;
+    return (x >>> 0) / 0x100000000;
+  };
+}
+
+function hexToUint32(hex) {
+  return parseInt(hex.slice(0,8),16)>>>0;
+}
+
+function randomYao(rnd) {
+  if (rnd < 0.125) return 9;
+  if (rnd < 0.125+0.375) return 7;
+  if (rnd < 0.125+0.375+0.375) return 8;
+  return 6;
+}
+
+function yaosToHexagramId(yaos) {
+  let bits=0;
+  for(let i=0;i<6;i++){
+    const isYang = (yaos[i]===7||yaos[i]===9)?1:0;
+    bits |= (isYang<<i);
+  }
+  return "Q"+(bits+1);
+}
+
+function toChangedYaos(yaos) {
+  return yaos.map(y=>{
+    if(y===9) return 8;
+    if(y===6) return 7;
+    return y;
+  });
+}
+
+function toMutualYaos(yaos){
+  if(!Array.isArray(yaos)||yaos.length!==6) throw new Error("yaos must be length 6");
+  const [y1,y2,y3,y4,y5,y6]=yaos;
+  return [y2,y3,y4,y3,y4,y5];
+}
+
+function generateUid() {
+  const existing = localStorage.getItem('zen_uid');
+  if(existing) return existing;
+  const uid = 'zen_'+Math.random().toString(36).slice(2,10);
+  localStorage.setItem('zen_uid',uid);
+  return uid;
+}
+
+// -------------------- 检测可用的语义版本 --------------------
+async function detectAvailableVersions(hexId) {
+  const versions = ['v1', 'v2', 'v3'];
+  const availableVersions = [];
+  
+  for (const version of versions) {
+    try {
+      const resp = await fetch(`data/hexagrams/${hexId}/semantic-${version}.json`);
+      if (resp.ok) {
+        availableVersions.push(version);
+        console.log(`✅ 版本 ${version} 可用`);
+      }
+    } catch (e) {
+      console.log(`❌ 版本 ${version} 不可用`);
+    }
+  }
+  
+  return availableVersions.length > 0 ? availableVersions : ['v1']; // 默认至少返回v1
+}
+
+// -------------------- 加载卦象数据 --------------------
+async function loadHexagram(hexId, version = null) {
+  console.log(`正在加载全息场: ${hexId}`);
+  
+  const basePath = `data/hexagrams/${hexId}`;
+  
+  try {
+    // 如果没有指定版本，先检测可用版本
+    let targetVersion = version;
+    if (!targetVersion) {
+      const availableVersions = await detectAvailableVersions(hexId);
+      // 随机选择一个可用版本
+      targetVersion = availableVersions[Math.floor(Math.random() * availableVersions.length)];
+    }
+    
+    console.log(`选择版本: ${targetVersion}`);
+    
+    // 加载指定版本的语义文件
+    const resp = await fetch(`${basePath}/semantic-${targetVersion}.json`);
+    if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    
+    const data = await resp.json();
+    console.log(`成功加载 ${hexId} 版本 ${targetVersion}:`, data);
+    
+    // 适配数据结构
+    let segments;
+    if (data.main && data.main.segments) {
+      segments = data.main.segments;
+      console.log('原始data', JSON.stringify(data));
+    } else if (data.segments) {
+      segments = data.segments;
+      console.log(`使用旧格式: data.segments`);
+    } else {
+      console.warn(`卦象 ${hexId} 缺少 segments 字段，使用默认值`);
+      segments = {
+        status: `${hexId}·创造能量流动`,
+        trend: `${hexId}·积极发展态势`, 
+        mind: `${hexId}·保持平静专注`,
+        risk: `${hexId}·注意平衡调节`
+      };
+    }
+    
+return {
+  id: data.id || hexId,
+  summary: data.summary || hexId,   // ← 必须加这句
+  segments,
+  lines: data.main?.lines || data.lines || [],
+  version: targetVersion
+};
+    
+  } catch(e) {
+    console.warn(`❌ 加载卦象 ${hexId} 失败:`, e);
+    
+    // 尝试其他版本
+    try {
+      const availableVersions = await detectAvailableVersions(hexId);
+      for (const version of availableVersions) {
+        if (version !== (version || 'v1')) {
+          console.log(`尝试回退到版本 ${version}`);
+          return loadHexagram(hexId, version);
+        }
+      }
+    } catch (fallbackError) {
+      console.warn('所有版本回退都失败');
+    }
+    
+    // 所有版本都失败，返回默认数据
+    console.warn(`使用默认数据`);
+    return {
+      id: hexId,
+      segments: {
+        status: `${hexId}·全息场能量充沛`,
+        trend: `${hexId}·积极行动带来新开始`, 
+        mind: `${hexId}·保持自信与平静心态`,
+        risk: `${hexId}·注意平衡避免过度`
+      },
+      lines: [],
+      version: 'default'
+    };
+  }
+}
+
+// -------------------- 主逻辑 --------------------
+async function generateHexagramResult(opts = {}) {
+  try {
+    console.log('🎯 开始生成卦象逻辑');
+    
+    const timestamp = opts.timestamp || Date.now();
+    const uid = opts.uid || 'user';
+    const ip = opts.ip || '127.0.0.1';
+
+    const seedStr = `${timestamp}@${ip}#${uid}`;
+    const h = await sha256Hex(seedStr);
+    const seed32 = hexToUint32(h);
+    const rnd = xorshift32(seed32);
+
+    // 生成6爻
+    const yaos = Array.from({length:6},() => randomYao(rnd()));
+    const mainId = yaosToHexagramId(yaos);
+
+    console.log('生成的卦象信息:', { 
+      爻序列: yaos,
+      卦象ID: mainId 
+    });
+
+    // 加载主卦数据
+    console.log('📥 开始加载数据...');
+    const mainData = await loadHexagram(mainId);
+    console.log('✅ 数据加载完成 - summary:', mainData.summary);
+
+    // 确保 segments 存在
+    if (!mainData.segments) {
+      console.warn('数据中缺少 segments，创建默认值');
+      mainData.segments = {
+        status: "能量场正在形成",
+        trend: "积极发展进行中", 
+        mind: "保持专注与耐心",
+        risk: "注意内在平衡"
+      };
+    }
+
+    // 修复：确保 summary 正确传递
+    const result = {
+      seed: { timestamp, uid, ip },
+      summary: mainData.summary,  // ← 直接从 mainData 中获取
+      main: { 
+        id: mainId, 
+        yaos, 
+        segments: mainData.segments, 
+        lines: mainData.lines || [],
+        version: mainData.version
+      }
+    };
+
+    console.log('🎉 最终返回结果 - summary:', result.summary);
+    return result;
+    
+  } catch (error) {
+    console.error('💥 生成卦象错误:', error);
+    
+    return {
+      seed: { timestamp: Date.now(), uid: 'error', ip: '0.0.0.0' },
+      summary: '全息场能量校准中',  // ← 错误情况下的默认 summary
+      main: {
+        id: 'Q1',
+        yaos: [7,7,7,7,7,7],
+        segments: {
+          status: "全息场能量充沛",
+          trend: "积极行动带来新开始",
+          mind: "保持自信与平静",
+          risk: "注意平衡避免过度"
+        },
+        lines: [],
+        version: 'error'
+      }
+    };
+  }
+}
+// -------------------- 全局暴露 --------------------
+window.ZenTap = {
+  generateHexagramResult,
+  loadHexagram,
+  detectAvailableVersions,
+  sha256Hex,
+  xorshift32,
+  randomYao,
+  yaosToHexagramId
+};
+
+console.log('✅ Zen-Tap 核心加载完成 - 支持多版本语义');

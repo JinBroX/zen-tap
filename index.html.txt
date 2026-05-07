@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>yi-on</title>
+  <link rel="icon" href="ico.png" type="image/x-icon">
+
+  <style>
+    /* 全局样式重置：移除所有元素默认的外边距和内边距，使用border-box盒模型 */
+    *{margin:0;padding:0;box-sizing:border-box;}
+    
+    /* 页面主体样式：居中布局，全屏高度，浅灰色背景，设置字体 */
+    body{display:flex;justify-content:center;align-items:center;height:100vh;background:#fafafa;font-family:'Helvetica Neue',Arial,sans-serif;}
+    
+    /* 主容器：相对定位，全屏尺寸，使用flex垂直居中布局 */
+    .container{position:relative;width:100vw;height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;}
+    
+    /* Logo样式：固定尺寸，底部外边距 */
+    .logo{width:50%;height:50%;margin-bottom:10px;opacity: 0.05;}
+    
+    /* 说明文字样式：大号细体字体，深灰色，居中，顶部外边距，轻微文字阴影 */
+    .instruction{font-size:2rem;font-weight: 200;color:rgb(48, 48, 48);text-align:center;margin-top:10px;text-shadow:0  rgba(0,0,0,.3);}
+    
+    /* 圆形基础样式：绝对定位，圆形边框，手型指针，平滑过渡效果 */
+    .circle{position:absolute;border-radius:50%;cursor:pointer;transition:all .5s ease;}
+    
+    /* 圆形悬停效果：透明度变化和缩放效果 */
+    .circle:hover{opacity:.9;transform:scale(1.05);}
+    
+    /* 圆形颜色定义：6种不同颜色的半透明背景 */
+    .circle.color-1{background:rgba(102,178,255,.9);} /* 蓝色 */
+    .circle.color-2{background:rgba(144,204,144,.9);} /* 绿色 */
+    .circle.color-3{background:rgba(255,179,179,.9);} /* 红色 */
+    .circle.color-4{background:rgba(179,144,255,.9);} /* 紫色 */
+    .circle.color-5{background:rgba(255,204,128,.9);} /* 橙色 */
+    .circle.color-6{background:rgba(184,219,230,.9);} /* 浅蓝色 */
+    
+    /* 圆形动画：使用CSS自定义属性控制动画类型和持续时间 */
+    .circle[data-animation]{animation:var(--breathe-animation) var(--breathe-duration) infinite ease-in-out;}
+    
+    /* 呼吸动画1：缩放和透明度变化的动画 */
+    @keyframes breathe1{0%,100%{transform:scale(1);opacity:.4;}50%{transform:scale(2.2);opacity:.8;}}
+    
+    /* 呼吸动画2：不同的缩放比例和透明度变化 */
+    @keyframes breathe2{0%,100%{transform:scale(1);opacity:.3;}50%{transform:scale(2.5);opacity:.7;}}
+    
+    /* 呼吸动画3：另一种缩放和透明度变化模式 */
+    @keyframes breathe3{0%,100%{transform:scale(1);opacity:.5;}50%{transform:scale(2);opacity:.9;}}
+    
+    /* 响应式设计：在移动设备上调整Logo和文字大小 */
+    @media (max-width:768px){.logo{width:50%;height:50%;}.instruction{font-size:1.5rem;}}
+  </style>
+</head>
+<body>
+  <div class="container" id="container">
+    <!-- SVG Logo图片 -->
+    <img src="logo.svg" alt="yi-on" class="logo">
+    <div class="instruction">任意圆形，一按出结果</div>
+  </div>
+
+  <script>
+    const container=document.getElementById('container');
+    const circleCount=6;
+    const colors=['color-1','color-2','color-3','color-4','color-5','color-6'];
+    let circles=[];
+
+    // 生成唯一用户ID的函数
+    function genUID(){return 'U'+Math.random().toString(36).slice(2,10);}
+    
+    // 数组洗牌函数：随机重新排列数组元素
+    function shuffleArray(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+    // 创建圆形元素的函数
+    function createCircles(){
+      // 移除所有已存在的圆形并清空数组
+      circles.forEach(c=>c.remove());circles=[];
+      
+      // 生成不同大小的圆形尺寸数组并随机排序
+      // 尺寸基于容器尺寸计算，逐渐减小
+      const sizes=shuffleArray(Array.from({length:circleCount},(_,i)=>Math.min(container.offsetWidth,container.offsetHeight)*(1-i*.1)*.25));
+      
+      // 存储已放置圆形的位置信息
+      const placed=[];
+      // 随机分配颜色
+      const colorAs=shuffleArray([...colors]);
+      
+      // 循环创建每个圆形
+      for(let i=0;i<circleCount;i++){
+        // 创建圆形div元素
+        const c=document.createElement('div');
+        // 添加基础类和颜色类
+        c.classList.add('circle',colorAs[i]);
+        // 随机设置动画类型（1-3）
+        c.setAttribute('data-animation',(Math.floor(Math.random()*3)+1));
+        
+        // 获取当前圆形的尺寸和随机动画持续时间
+        const size=sizes[i],duration=7+Math.random()*2;
+        
+        // 设置CSS自定义属性：动画持续时间和动画类型
+        c.style.setProperty('--breathe-duration',`${duration}s`);
+        c.style.setProperty('--breathe-animation',`breathe${Math.floor(Math.random()*3)+1}`);
+        
+        // 查找合适的位置放置圆形（避免重叠）
+        const pos=findPos(size,placed);
+        
+        // 设置圆形尺寸和位置
+        c.style.width=c.style.height=`${size}px`;
+        c.style.left=`${pos.x}px`;c.style.top=`${pos.y}px`;
+        
+        // 设置圆形ID
+        c.dataset.id=i+1;
+        
+        // 添加点击事件监听器
+        c.addEventListener('click',(e)=>{
+          // 获取当前时间戳
+          const ts=Date.now();
+          // 获取或生成用户ID
+          const uid=localStorage.getItem('zen_uid')||genUID();
+          // 如果本地存储中没有用户ID，则保存
+          if(!localStorage.getItem('zen_uid'))localStorage.setItem('zen_uid',uid);
+          
+          // 获取客户端IP地址（如果可用）
+          const ip=window.__ZEN_TAP_CLIENT_IP||'0.0.0.0';
+          // 获取点击坐标
+          const x=Math.round(e.clientX),y=Math.round(e.clientY);
+          
+          // 生成种子字符串，包含时间、IP、用户ID、圆形ID和点击位置
+          const seed=`${ts}|${ip}|${uid}|${c.dataset.id}|${x},${y}`;
+          
+          // 点击动画效果：放大并淡出
+          c.style.transform='scale(2.5)';c.style.opacity='0';
+          
+          // 延迟500毫秒后跳转到内容页面，传递种子参数
+          setTimeout(()=>location.href=`content.html?seed=${encodeURIComponent(seed)}`,500);
+        });
+        
+        // 记录当前圆形的位置信息
+        placed.push({x:pos.x,y:pos.y,radius:size/2});
+        
+        // 将圆形添加到容器并记录到数组
+        container.appendChild(c);circles.push(c);
+      }
+    }
+    
+    // 查找合适位置放置圆形的函数
+    function findPos(size,placed){
+      const maxA=200; // 最大尝试次数
+      let a=0; // 当前尝试次数
+      const radius=size/2; // 圆形半径
+      
+      // 循环尝试找到不重叠的位置
+      while(a<maxA){
+        // 生成随机位置（确保圆形完全在容器内）
+        const x=Math.random()*(container.offsetWidth-size),y=Math.random()*(container.offsetHeight-size);
+        
+        // 检查是否与所有已放置圆形都不重叠（保持10px间距）
+        if(placed.every(p=>Math.sqrt((p.x-x)**2+(p.y-y)**2)>=(p.radius+radius+10)))return{x,y};
+        a++;
+      }
+      
+      // 如果尝试次数用完仍未找到合适位置，返回随机位置
+      return{x:Math.random()*(container.offsetWidth-size),y:Math.random()*(container.offsetHeight-size)};
+    }
+    
+    // 窗口大小改变时重新创建圆形（响应式布局）
+    window.addEventListener('resize',createCircles);
+    
+    // 键盘事件：按R键重新创建圆形
+    document.addEventListener('keydown',e=>e.key.toLowerCase()==='r'&&createCircles());
+    
+    // 页面加载完成后初始化创建圆形
+    document.addEventListener('DOMContentLoaded',createCircles);
+  </script>
+</body>
+</html>

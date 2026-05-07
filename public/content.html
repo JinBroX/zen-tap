@@ -53,10 +53,32 @@
       background-size: 200px 200px;
     }
 
+    /* ─── Background Image ─── */
+    .bg-img {
+      position: fixed; inset: 0;
+      z-index: 0;
+      background-image: url('opentree-1.png');
+      background-size: cover;
+      background-position: center;
+      animation: bgImgReveal 2s ease forwards;
+    }
+
+    @keyframes bgImgReveal {
+      0%   { opacity: 0; transform: scale(1.02); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Subtle overlay so text stays legible */
+    .bg-img::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(12, 11, 14, 0.62);
+    }
+
     /* ─── Atmospheric Background ─── */
     .atmo {
       position: fixed; inset: 0;
-      pointer-events: none; z-index: 0;
+      pointer-events: none; z-index: 1;
     }
 
     .atmo::before {
@@ -630,6 +652,9 @@
   </style>
 </head>
 <body>
+
+  <!-- Background Image -->
+  <div class="bg-img"></div>
 
   <!-- Atmosphere -->
   <div class="atmo"></div>
