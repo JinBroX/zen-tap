@@ -69,7 +69,8 @@ async function detectAvailableVersions(hexId) {
   for (const version of versions) {
     try {
       const resp = await fetch(`data/hexagrams/${hexId}/semantic-${version}.json`);
-      if (resp.ok) {
+      const ct = resp.headers.get('content-type') || '';
+      if (resp.ok && ct.includes('application/json')) {
         availableVersions.push(version);
         console.log(`✅ 语义版本 ${version} 可用`);
       }
@@ -101,6 +102,8 @@ async function loadHexagram(hexId, version = null) {
     // 加载指定版本的卦象数据
     const resp = await fetch(`${basePath}/semantic-${targetVersion}.json`);
     if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const ct = resp.headers.get('content-type') || '';
+    if(!ct.includes('application/json')) throw new Error(`Invalid content-type: ${ct}`);
     
     const data = await resp.json();
     console.log(`成功加载卦象 ${hexId} 版本 ${targetVersion}:`, data);
