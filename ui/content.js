@@ -6,6 +6,7 @@
 import { generateHexagram } from '/engine/engine.js';
 import { getMovingLines } from '/engine/line_engine.js';
 import { summarize } from '/decision/decision.js';
+import { getS2Field } from '/s2/s2.js';
 
 // ---------- DOM Refs ----------
 const resultEl   = document.getElementById('result');
@@ -219,11 +220,23 @@ stage.addEventListener('wheel', e => {
 }, { passive: false });
 
 // ---------- Main Pipeline ----------
+function showS2Field(s2Key) {
+  const field = getS2Field(s2Key);
+  const label = document.getElementById('navS2Label');
+  if (field && label) {
+    label.textContent = field.label;
+    label.classList.add('visible');
+  }
+}
+
 async function init() {
   startParticles();
 
   const params = new URLSearchParams(location.search);
   const seed = params.get('seed');
+  const s2Key = params.get('s2') || 'decision';
+
+  showS2Field(s2Key);
 
   if (!seed) {
     document.getElementById('cardSummary').textContent = '返回首页，触碰任意位置开始';

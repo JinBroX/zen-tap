@@ -4,6 +4,7 @@
 // 不参与: 卦象计算、语义判断
 
 import { generateSeed } from '/core/seed.js';
+import { S2_FIELDS } from '/s2/s2.js';
 
 // ---------- UID ----------
 function getUid() {
@@ -13,6 +14,22 @@ function getUid() {
     localStorage.setItem('opensee_uid', uid);
   }
   return uid;
+}
+
+// ---------- S2 Field ----------
+let currentS2 = 'decision';
+
+function initS2Selector() {
+  const sel = document.getElementById('s2Selector');
+  if (!sel) return;
+  sel.addEventListener('click', (e) => {
+    const btn = e.target.closest('.s2-btn');
+    if (!btn) return;
+    e.stopPropagation();
+    sel.querySelectorAll('.s2-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentS2 = btn.dataset.s2;
+  });
 }
 
 // ---------- Config ----------
@@ -70,13 +87,14 @@ async function onTouch(e) {
   const y = Math.round(e.clientY || e.touches?.[0]?.clientY || 0);
   const ts = Date.now();
   const uid = getUid();
-  const entropy = `${x},${y}|${JSON.stringify(mouseTrail)}`;
+  const entropy = `${x},${y}|${JSON.stringify(mouseTrail)}|s2:${currentS2}`;
 
   const seed = await generateSeed({ timestamp: ts, uid, entropy });
 
   ripple(x, y);
   setTimeout(() => {
-    location.href = `content.html?seed=${encodeURIComponent(seed)}`;
+    const params = new URLSearchParams({ seed, s2: currentS2 });
+    location.href = `content.html?${params}`;
   }, 350);
 }
 
@@ -144,6 +162,7 @@ function initAuras() {
 // ---------- Bootstrap ----------
 document.addEventListener('DOMContentLoaded', () => {
   initAuras();
+  initS2Selector();
   document.addEventListener('mousemove', recordMove, { passive: true });
   document.addEventListener('touchmove', recordMove, { passive: true });
   document.addEventListener('click', onTouch);

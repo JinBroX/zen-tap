@@ -124,6 +124,18 @@ body::before {
   letter-spacing: 0.35em;
 }
 
+.nav-s2-label {
+  color: var(--gold);
+  font-size: 0.55rem;
+  font-weight: 300;
+  letter-spacing: 0.3em;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  margin-right: 16px;
+}
+
+.nav-s2-label.visible { opacity: 0.8; }
+
 /* ═══════════════ Divider ═══════════════ */
 
 .nav-divider {

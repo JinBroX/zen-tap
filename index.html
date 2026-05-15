@@ -78,6 +78,42 @@
       100% { transform: translate(-50%,-50%) scale(5); opacity: 0; }
     }
 
+    .s2-selector {
+      position: absolute;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 24px;
+      z-index: 10;
+    }
+
+    .s2-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.35);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      padding: 8px 20px;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: all 0.5s ease;
+      backdrop-filter: blur(8px);
+    }
+
+    .s2-btn:hover {
+      color: rgba(255,255,255,0.6);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .s2-btn.active {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(216,176,122,0.08);
+    }
+
     .hint {
       position: absolute;
       bottom: 36px;
@@ -100,8 +136,14 @@
 <body>
 
   <div class="logo">OpenSee.me</div>
+  <div class="s2-selector" id="s2Selector">
+    <button class="s2-btn active" data-s2="decision">决策</button>
+    <button class="s2-btn" data-s2="relation">关系</button>
+    <button class="s2-btn" data-s2="career">事业</button>
+    <button class="s2-btn" data-s2="wealth">资源</button>
+  </div>
   <div class="aura-layer" id="auraLayer"></div>
-  <div class="hint">任意位置触碰感应</div>
+  <div class="hint">选择镜片后，任意位置触碰感应</div>
 
   <script type="module" src="/ui/index.js"></script>
 
