@@ -103,7 +103,9 @@ function populateCards(hexName, judgment, lines, movingLines, decision) {
     document.getElementById('cardMoving').innerHTML = html;
     movingWrapper.style.display = '';
   } else {
-    movingWrapper.style.display = 'none';
+    movingWrapper.style.display = '';
+    document.getElementById('cardMoving').innerHTML =
+      '<div class="card-moving-still">此卦不变，没有动爻。<br>当前状态趋于稳定。</div>';
   }
 
   document.getElementById('cardAftermath').textContent = judgment.outcome || '';

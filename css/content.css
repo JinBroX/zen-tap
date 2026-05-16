@@ -261,6 +261,14 @@ body::before {
   color: var(--text);
 }
 
+.card-moving-still {
+  color: var(--ink-mid);
+  font-size: 0.9rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  line-height: 2.1;
+}
+
 /* ═══════════════ Dots ═══════════════ */
 
 .carousel-dots {
