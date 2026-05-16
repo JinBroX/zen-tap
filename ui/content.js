@@ -4,7 +4,7 @@
 // 数据流: seed → engine → line_engine → semantic fetch → decision → render
 
 import { generateHexagram } from '/engine/engine.js';
-import { getMovingLines } from '/engine/line_engine.js';
+import { getMovingLines, getChangedYaos, yaosToHexagramId } from '/engine/line_engine.js';
 import { getTransitions } from '/engine/transitions.js';
 import { summarize } from '/decision/decision.js';
 import { getS2Field } from '/s2/s2.js';
@@ -84,7 +84,7 @@ async function fetchSemantic(hexId) {
 }
 
 // ---------- Populate Cards ----------
-function populateCards(hexName, judgment, lines, movingLines, decision) {
+function populateCards(hexName, judgment, lines, movingLines, decision, changedSemantic) {
   document.getElementById('cardSummary').textContent =
     hexName + ' · ' + (judgment.situation || '');
 
@@ -108,7 +108,12 @@ function populateCards(hexName, judgment, lines, movingLines, decision) {
       '<div class="card-moving-still">此卦不变，没有动爻。<br>当前状态趋于稳定。</div>';
   }
 
-  document.getElementById('cardAftermath').textContent = judgment.outcome || '';
+  // Card 6: 走向 → 本卦 outcome + 之卦 situation (如有动爻)
+  let aftermath = judgment.outcome || '';
+  if (changedSemantic && decision.hasMovement) {
+    aftermath += '\n\n之卦 ' + changedSemantic.hexName + ' · ' + (changedSemantic.judgment?.situation || '');
+  }
+  document.getElementById('cardAftermath').textContent = aftermath;
 
   buildDotIndicators();
 }
@@ -223,29 +228,30 @@ stage.addEventListener('wheel', e => {
 }, { passive: false });
 
 // ---------- Transitions ----------
-async function populateTransitions(yaos) {
+async function populateTransitions(yaos, hexId, changedHexId) {
   const allTrans = getTransitions(yaos);
   const types = [
-    { key: 'opposite', id: 'transOpposite', label: '错' },
-    { key: 'reverse',  id: 'transReverse',  label: '综' },
-    { key: 'mutual',   id: 'transMutual',   label: '互' }
+    { key: 'changed',  id: 'transChanged',  label: '之', hexId: changedHexId },
+    { key: 'mutual',   id: 'transMutual',   label: '互', hexId: allTrans.mutual },
+    { key: 'opposite', id: 'transOpposite', label: '错', hexId: allTrans.opposite },
+    { key: 'reverse',  id: 'transReverse',  label: '综', hexId: allTrans.reverse }
   ];
 
   for (const t of types) {
-    const hexId = allTrans[t.key];
+    const targetId = t.hexId;
     const pill = document.getElementById(t.id);
-    if (!pill) continue;
+    if (!pill || !targetId || targetId === hexId) continue;
 
     try {
-      const sem = await fetchSemantic(hexId);
+      const sem = await fetchSemantic(targetId);
       if (sem) {
-        pill.querySelector('.trans-name').textContent = sem.hexName || hexId;
+        pill.querySelector('.trans-name').textContent = sem.hexName || targetId;
         pill.querySelector('.trans-hint').textContent =
           (sem.judgment?.situation || '').slice(0, 18);
         pill.title = sem.judgment?.situation || '';
       }
     } catch (_) {
-      pill.querySelector('.trans-name').textContent = hexId;
+      pill.querySelector('.trans-name').textContent = targetId;
     }
   }
 }
@@ -282,18 +288,27 @@ async function init() {
     // 2. line_engine: yaos → moving_lines
     const movingLines = getMovingLines(yaos);
 
-    // 3. semantic: hexId → judgment + lines
+    // 3. line_engine: changed hexagram (之卦)
+    const changedYaos = getChangedYaos(yaos);
+    const changedHexId = yaosToHexagramId(changedYaos);
+    const hasMovement = movingLines.length > 0 && changedHexId !== hexId;
+
+    // 4. semantic: 本卦 + 之卦 (if changed)
     const semantic = await fetchSemantic(hexId);
     if (!semantic) throw new Error('Semantic data not found');
+    let changedSemantic = null;
+    if (hasMovement) {
+      changedSemantic = await fetchSemantic(changedHexId);
+    }
 
-    // 4. decision: structural summary
+    // 5. decision: structural summary
     const decision = summarize(semantic.judgment, semantic.lines, movingLines);
 
-    // 5. render
-    populateCards(semantic.hexName, semantic.judgment, semantic.lines, movingLines, decision);
+    // 6. render
+    populateCards(semantic.hexName, semantic.judgment, semantic.lines, movingLines, decision, changedSemantic);
 
-    // 6. transitions
-    populateTransitions(yaos);
+    // 7. transitions
+    populateTransitions(yaos, hexId, changedHexId);
   } catch (e) {
     console.error('Pipeline error:', e);
     document.getElementById('cardSummary').textContent = '系统异常，请返回重试';

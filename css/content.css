@@ -375,6 +375,11 @@ body::before {
   background: rgba(216,176,122,0.05);
 }
 
+.trans-pill-primary {
+  border-color: var(--gold-soft);
+  background: rgba(216,176,122,0.04);
+}
+
 .trans-type {
   font-size: 0.55rem;
   font-weight: 300;
