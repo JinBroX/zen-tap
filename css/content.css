@@ -316,6 +316,81 @@ body::before {
 .carousel-arrow.up   { top: 0; }
 .carousel-arrow.down { bottom: 40px; }
 
+/* ═══════════════ Transitions ═══════════════ */
+
+.transitions {
+  text-align: center;
+  padding: 16px 28px 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 1s ease 0.4s;
+}
+
+#result.visible .transitions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.transitions-label {
+  font-size: 0.5rem;
+  font-weight: 300;
+  letter-spacing: 0.4em;
+  color: var(--ink-dim);
+  margin-bottom: 16px;
+}
+
+.transitions-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.trans-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--amber-line);
+  border-radius: 12px;
+  padding: 10px 24px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  min-width: 90px;
+  color: var(--text);
+  font-family: var(--font);
+}
+
+.trans-pill:hover {
+  border-color: var(--gold);
+  background: rgba(216,176,122,0.05);
+}
+
+.trans-type {
+  font-size: 0.55rem;
+  font-weight: 300;
+  letter-spacing: 0.3em;
+  color: var(--amber);
+}
+
+.trans-name {
+  font-size: 0.85rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: var(--text);
+}
+
+.trans-hint {
+  font-size: 0.55rem;
+  font-weight: 300;
+  color: var(--ink-mid);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ═══════════════ Footer ═══════════════ */
 
 .footer {

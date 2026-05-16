@@ -5,6 +5,7 @@
 
 import { generateHexagram } from '/engine/engine.js';
 import { getMovingLines } from '/engine/line_engine.js';
+import { getTransitions } from '/engine/transitions.js';
 import { summarize } from '/decision/decision.js';
 import { getS2Field } from '/s2/s2.js';
 
@@ -219,6 +220,34 @@ stage.addEventListener('wheel', e => {
   }
 }, { passive: false });
 
+// ---------- Transitions ----------
+async function populateTransitions(yaos) {
+  const allTrans = getTransitions(yaos);
+  const types = [
+    { key: 'opposite', id: 'transOpposite', label: '错' },
+    { key: 'reverse',  id: 'transReverse',  label: '综' },
+    { key: 'mutual',   id: 'transMutual',   label: '互' }
+  ];
+
+  for (const t of types) {
+    const hexId = allTrans[t.key];
+    const pill = document.getElementById(t.id);
+    if (!pill) continue;
+
+    try {
+      const sem = await fetchSemantic(hexId);
+      if (sem) {
+        pill.querySelector('.trans-name').textContent = sem.hexName || hexId;
+        pill.querySelector('.trans-hint').textContent =
+          (sem.judgment?.situation || '').slice(0, 18);
+        pill.title = sem.judgment?.situation || '';
+      }
+    } catch (_) {
+      pill.querySelector('.trans-name').textContent = hexId;
+    }
+  }
+}
+
 // ---------- Main Pipeline ----------
 function showS2Field(s2Key) {
   const field = getS2Field(s2Key);
@@ -260,6 +289,9 @@ async function init() {
 
     // 5. render
     populateCards(semantic.hexName, semantic.judgment, semantic.lines, movingLines, decision);
+
+    // 6. transitions
+    populateTransitions(yaos);
   } catch (e) {
     console.error('Pipeline error:', e);
     document.getElementById('cardSummary').textContent = '系统异常，请返回重试';
