@@ -129,16 +129,13 @@ body::before {
   font-size: 0.55rem;
   font-weight: 300;
   letter-spacing: 0.3em;
-  opacity: 0;
-  transition: opacity 0.8s ease;
+  opacity: 0.85;
   margin-right: 16px;
   cursor: pointer;
   user-select: none;
 }
 
 .nav-s2-label:hover { opacity: 1; }
-
-.nav-s2-label.visible { opacity: 0.9; }
 
 /* ═══════════════ Divider ═══════════════ */
 

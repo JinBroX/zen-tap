@@ -264,7 +264,6 @@ function showS2Field(s2Key) {
   const label = document.getElementById('navS2Label');
   if (field && label) {
     label.textContent = field.label;
-    label.classList.add('visible');
   }
   currentS2 = s2Key;
 }
