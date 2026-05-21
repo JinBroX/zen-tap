@@ -92,9 +92,12 @@ async function fetchSemantic(hexId, field = 'decision') {
 }
 
 // ---------- Populate Cards ----------
-function populateCards(hexName, judgment, lines, movingLines, decision, changedSemantic) {
-  // Card 0: 总览 - 只显示 situation，不显示卦名
-  document.getElementById('cardSummary').textContent = judgment.situation || '';
+function populateCards(hexName, judgment, lines, movingLines, decision, changedSemantic, summary) {
+  // Card 0: 总览 - 显示诗意总结，fallback 到 situation
+  let summaryText = '';
+  if (typeof summary === 'string') summaryText = summary;
+  else if (Array.isArray(summary) && summary.length) summaryText = summary[0];
+  document.getElementById('cardSummary').textContent = summaryText || judgment.situation || '';
 
   document.getElementById('cardReflection').textContent = judgment.situation || '';
   document.getElementById('cardMind').textContent = judgment.movement || '';
@@ -315,7 +318,7 @@ async function init() {
     const decision = summarize(semantic.judgment, semantic.lines, movingLines);
 
     // 6. render
-    populateCards(semantic.hexName, semantic.judgment, semantic.lines, movingLines, decision, changedSemantic);
+    populateCards(semantic.hexName, semantic.judgment, semantic.lines, movingLines, decision, changedSemantic, semantic.summary);
 
     // 7. transitions
     populateTransitions(yaos, hexId, changedHexId);
