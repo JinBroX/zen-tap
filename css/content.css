@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════
    OpenSee · State Reveal
-   所见即所在 — 垂直轮播，响应式字体
+   所见即所在 — 卷轴式单页，连续阅读
    ═══════════════════════════════════════════ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -132,9 +132,13 @@ body::before {
   opacity: 0;
   transition: opacity 0.8s ease;
   margin-right: 16px;
+  cursor: pointer;
+  user-select: none;
 }
 
-.nav-s2-label.visible { opacity: 0.8; }
+.nav-s2-label:hover { opacity: 1; }
+
+.nav-s2-label.visible { opacity: 0.75; }
 
 /* ═══════════════ Divider ═══════════════ */
 
@@ -169,99 +173,72 @@ body::before {
 
 #result.visible { opacity: 1; pointer-events: auto; }
 
-/* ═══════════════ Carousel ═══════════════ */
+/* ═══════════════ Scroll ═══════════════ */
 
-.carousel {
-  position: relative;
-  display: flex; flex-direction: column; align-items: center;
-  padding: 90px 28px 0;
-  min-height: 100vh;
+.scroll {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 100px 28px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
 }
 
-.carousel-stage {
-  position: relative;
-  width: 100%; max-width: 520px;
-  flex: 1;
-  display: flex; align-items: center; justify-content: center;
-  min-height: 60vh;
+/* ═══════════════ Segment (每段) ═══════════════ */
+
+.seg {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
 }
 
-.carousel-card {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  text-align: center;
-  padding: 24px;
-  opacity: 0; transform: translateY(40px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-  pointer-events: none;
+.seg.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.carousel-card.active {
-  opacity: 1; transform: translateY(0);
-  pointer-events: auto;
-}
+/* ── Summary (诗化总结) ── */
 
-.carousel-card.exit-up {
-  opacity: 0; transform: translateY(-50px);
-}
-
-.carousel-card.exit-down {
-  opacity: 0; transform: translateY(50px);
-}
-
-/* ── Symbol (icon above summary) ── */
-
-.card-symbol {
-  width: 72px;
-  height: 72px;
-  margin: 0 auto 32px;
-  opacity: 0.85;
-}
-
-/* ── Summary card (Card 0) ── */
-
-.card-summary {
-  font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+.seg-summary .seg-body {
+  font-size: clamp(1.8rem, 4.5vw, 2.6rem);
   font-weight: 300;
-  letter-spacing: 0.04em;
-  line-height: 1.6;
-  color: var(--text);
-  max-width: 480px;
+  letter-spacing: 0.05em;
+  line-height: 1.55;
+  color: var(--ink-dim);
+  text-align: center;
   animation: textFloat 8s ease-in-out infinite;
 }
 
-/* ── Content cards ── */
+/* ── Label ── */
 
-.card-label {
+.seg-label {
   font-size: clamp(0.55rem, 1.2vw, 0.62rem);
-  font-weight: 300; letter-spacing: 0.45em;
+  font-weight: 300;
+  letter-spacing: 0.45em;
   color: var(--amber);
-  margin-bottom: 28px;
-}
-
-.card-body {
-  font-size: clamp(1.05rem, 2.8vw, 1.35rem);
-  font-weight: 300; letter-spacing: 0.04em; line-height: 2.1;
-  color: var(--text);
-  max-width: 420px;
-}
-
-.card-body.italic { font-style: normal; color: var(--text); }
-
-/* Moving line items */
-.card-moving-item {
   margin-bottom: 20px;
+}
+
+/* ── Body ── */
+
+.seg-body {
+  font-size: clamp(1.05rem, 2.8vw, 1.35rem);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  line-height: 2.1;
+  color: var(--text);
+}
+
+/* ── 波动 (wave items) ── */
+
+.wave-item {
+  margin-bottom: 18px;
   padding-left: 14px;
   border-left: 1px solid var(--gold-soft);
-  text-align: left;
 }
 
-.card-moving-item div {
-  color: var(--text);
-}
-
-.card-moving-still {
+.wave-still {
   color: var(--ink-mid);
   font-size: 0.9rem;
   font-weight: 300;
@@ -269,139 +246,30 @@ body::before {
   line-height: 2.1;
 }
 
-/* ═══════════════ Dots ═══════════════ */
+/* ═══════════════ Reference Cards (卦变参照) ═══════════════ */
 
-.carousel-dots {
-  display: flex; gap: 10px; align-items: center;
-  padding: 24px 0 40px;
-  height: 40px;
+.ref-card {
+  margin-top: 16px;
+  padding: 14px 18px;
+  border-left: 1px solid var(--gold-soft);
+  background: rgba(255,255,255,0.015);
+  border-radius: 0 8px 8px 0;
 }
 
-.carousel-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: rgba(255,255,255,.15);
-  border: none; cursor: pointer;
-  transition: all 0.5s ease;
-  padding: 0;
-}
-
-.carousel-dot.active {
-  background: var(--gold);
-  width: 20px; border-radius: 4px;
-}
-
-/* ═══════════════ Arrows ═══════════════ */
-
-.carousel-arrow {
-  position: absolute; left: 50%; transform: translateX(-50%);
-  z-index: 5;
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  border: 1px solid var(--amber-line);
-  background: transparent;
-  color: var(--amber-dim);
-  font-family: var(--font);
-  font-size: 0.9rem;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.4s ease;
-  opacity: 0;
-  backdrop-filter: blur(12px);
-}
-
-.carousel-arrow.visible { opacity: 0.5; }
-
-.carousel-arrow:hover {
-  opacity: 1;
-  border-color: var(--gold);
-  color: var(--gold);
-  background: rgba(255,255,255,.04);
-}
-
-.carousel-arrow:active { transform: translateX(-50%) scale(0.93); }
-
-.carousel-arrow.up   { top: 0; }
-.carousel-arrow.down { bottom: 40px; }
-
-/* ═══════════════ Transitions ═══════════════ */
-
-.transitions {
-  text-align: center;
-  padding: 16px 28px 0;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 1s ease 0.4s;
-}
-
-#result.visible .transitions {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.transitions-label {
-  font-size: 0.5rem;
-  font-weight: 300;
-  letter-spacing: 0.4em;
-  color: var(--ink-dim);
-  margin-bottom: 16px;
-}
-
-.transitions-row {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.trans-pill {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid var(--amber-line);
-  border-radius: 12px;
-  padding: 10px 24px;
-  cursor: pointer;
-  transition: all 0.4s ease;
-  min-width: 90px;
-  color: var(--text);
-  font-family: var(--font);
-}
-
-.trans-pill:hover {
-  border-color: var(--gold);
-  background: rgba(216,176,122,0.05);
-}
-
-.trans-pill-primary {
-  border-color: var(--gold-soft);
-  background: rgba(216,176,122,0.04);
-}
-
-.trans-type {
+.ref-label {
   font-size: 0.55rem;
   font-weight: 300;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.35em;
   color: var(--amber);
+  margin-bottom: 8px;
 }
 
-.trans-name {
-  font-size: 0.85rem;
+.ref-body {
+  font-size: 0.9rem;
   font-weight: 300;
-  letter-spacing: 0.04em;
-  color: var(--text);
-}
-
-.trans-hint {
-  font-size: 0.55rem;
-  font-weight: 300;
+  letter-spacing: 0.03em;
+  line-height: 1.9;
   color: var(--ink-mid);
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 /* ═══════════════ Footer ═══════════════ */
@@ -437,11 +305,7 @@ body::before {
 @media (max-width: 640px) {
   .nav { padding: 16px 20px; }
   .nav-divider { left: 20px; right: 20px; top: 52px; }
-  .carousel { padding: 80px 20px 0; }
-  .carousel-stage { min-height: 55vh; }
-  .carousel-card { padding: 16px; }
-  .card-summary { max-width: 100%; }
-  .card-body { max-width: 100%; }
+  .scroll { padding: 90px 20px 50px; gap: 48px; }
   .nav-logo img { height: 36px; }
   .nav-logo-text { font-size: 1.05rem; }
 }

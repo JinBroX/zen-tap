@@ -30,89 +30,75 @@
     </nav>
     <div class="nav-divider" id="navDivider"></div>
 
-    <!-- Carousel -->
-    <div class="carousel" id="carousel">
+    <!-- Scroll Content -->
+    <div class="scroll" id="scroll">
 
-      <!-- Up arrow -->
-      <button class="carousel-arrow up" id="arrowUp" aria-label="上一段">↑</button>
+      <!-- Section 1: 诗化总结 -->
+      <section class="seg seg-summary" id="segSummary">
+        <div class="seg-body" id="txtSummary"></div>
+      </section>
 
-      <div class="carousel-stage" id="carouselStage">
+      <!-- Section 2: 局势 -->
+      <section class="seg" id="segSituation">
+        <div class="seg-label">局势</div>
+        <div class="seg-body" id="txtSituation"></div>
+      </section>
 
-        <!-- Card 0: Summary -->
-        <div class="carousel-card active" data-card="0">
-          <div class="card-summary" id="cardSummary"></div>
+      <!-- Section 3: 变化 -->
+      <section class="seg" id="segMovement">
+        <div class="seg-label">变化</div>
+        <div class="seg-body" id="txtMovement"></div>
+      </section>
+
+      <!-- Section 4: 时机 -->
+      <section class="seg" id="segTiming">
+        <div class="seg-label">时机</div>
+        <div class="seg-body" id="txtTiming"></div>
+      </section>
+
+      <!-- Section 5: 注意 -->
+      <section class="seg" id="segRisk">
+        <div class="seg-label">注意</div>
+        <div class="seg-body" id="txtRisk"></div>
+      </section>
+
+      <!-- Section 6: 波动 (仅动爻时显示) -->
+      <section class="seg" id="segWave" style="display:none">
+        <div class="seg-label">波动</div>
+        <div class="seg-body" id="txtWave"></div>
+      </section>
+
+      <!-- Section 7: 走向 -->
+      <section class="seg" id="segOutcome">
+        <div class="seg-label">走向</div>
+        <div class="seg-body" id="txtOutcome"></div>
+      </section>
+
+      <!-- Section 8: 参照视角 -->
+      <section class="seg" id="segRefs" style="display:none">
+        <div class="seg-label">参照</div>
+
+        <div class="ref-card" id="refOpposite" style="display:none">
+          <div class="ref-label">反面观察</div>
+          <div class="ref-body" id="txtRefOpposite"></div>
         </div>
 
-        <!-- Card 1: 局势 -->
-        <div class="carousel-card" data-card="1">
-          <div class="card-label">局势</div>
-          <div class="card-body" id="cardReflection"></div>
+        <div class="ref-card" id="refReverse" style="display:none">
+          <div class="ref-label">倒转观察</div>
+          <div class="ref-body" id="txtRefReverse"></div>
         </div>
 
-        <!-- Card 2: 变化 -->
-        <div class="carousel-card" data-card="2">
-          <div class="card-label">变化</div>
-          <div class="card-body" id="cardMind"></div>
+        <div class="ref-card" id="refMutual" style="display:none">
+          <div class="ref-label">内在结构</div>
+          <div class="ref-body" id="txtRefMutual"></div>
         </div>
 
-        <!-- Card 3: 时机 -->
-        <div class="carousel-card" data-card="3">
-          <div class="card-label">时机</div>
-          <div class="card-body italic" id="cardFlow"></div>
+        <div class="ref-card" id="refChanged" style="display:none">
+          <div class="ref-label">变化方向</div>
+          <div class="ref-body" id="txtRefChanged"></div>
         </div>
+      </section>
 
-        <!-- Card 4: 风险 -->
-        <div class="carousel-card" data-card="4">
-          <div class="card-label">风险</div>
-          <div class="card-body" id="cardAttention"></div>
-        </div>
-
-        <!-- Card 5: 波动 -->
-        <div class="carousel-card" data-card="5" id="cardMovingWrapper">
-          <div class="card-label">波动</div>
-          <div class="card-body" id="cardMoving"></div>
-        </div>
-
-        <!-- Card 6: 走向 -->
-        <div class="carousel-card" data-card="6">
-          <div class="card-label">走向</div>
-          <div class="card-body italic" id="cardAftermath"></div>
-        </div>
-
-      </div>
-
-      <!-- Down arrow -->
-      <button class="carousel-arrow down" id="arrowDown" aria-label="下一段">↓</button>
-
-      <!-- Dots -->
-      <div class="carousel-dots" id="carouselDots"></div>
-    </div>
-
-    <!-- Transitions -->
-    <div class="transitions" id="transitions">
-      <div class="transitions-label">卦变参照</div>
-      <div class="transitions-row">
-        <button class="trans-pill trans-pill-primary" id="transChanged">
-          <span class="trans-type">之</span>
-          <span class="trans-name"></span>
-          <span class="trans-hint"></span>
-        </button>
-        <button class="trans-pill" id="transMutual">
-          <span class="trans-type">互</span>
-          <span class="trans-name"></span>
-          <span class="trans-hint"></span>
-        </button>
-        <button class="trans-pill" id="transOpposite">
-          <span class="trans-type">错</span>
-          <span class="trans-name"></span>
-          <span class="trans-hint"></span>
-        </button>
-        <button class="trans-pill" id="transReverse">
-          <span class="trans-type">综</span>
-          <span class="trans-name"></span>
-          <span class="trans-hint"></span>
-        </button>
-      </div>
     </div>
 
     <!-- Footer -->
