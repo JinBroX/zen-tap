@@ -77,7 +77,15 @@ function startParticles() {
 window.addEventListener('resize', () => { resizeParticles(); spawnParticles(); });
 
 // ---------- Fetch Semantic ----------
-async function fetchSemantic(hexId) {
+// field 对应四场域子目录: decision / relation / career / wealth
+// 优先读子目录文件，不存在则 fallback 到根目录（兜底）
+async function fetchSemantic(hexId, field = 'decision') {
+  // 尝试场域专属文件
+  try {
+    const resp = await fetch(`/semantic/${field}/${hexId}.json`);
+    if (resp.ok) return await resp.json();
+  } catch (_) { /* 网络失败直接走 fallback */ }
+  // fallback: 通用语义根目录
   const resp = await fetch(`/semantic/${hexId}.json`);
   if (!resp.ok) return null;
   return resp.json();
@@ -85,8 +93,8 @@ async function fetchSemantic(hexId) {
 
 // ---------- Populate Cards ----------
 function populateCards(hexName, judgment, lines, movingLines, decision, changedSemantic) {
-  document.getElementById('cardSummary').textContent =
-    hexName + ' · ' + (judgment.situation || '');
+  // Card 0: 总览 - 只显示 situation，不显示卦名
+  document.getElementById('cardSummary').textContent = judgment.situation || '';
 
   document.getElementById('cardReflection').textContent = judgment.situation || '';
   document.getElementById('cardMind').textContent = judgment.movement || '';
@@ -98,7 +106,9 @@ function populateCards(hexName, judgment, lines, movingLines, decision, changedS
   if (decision.hasMovement && decision.relevantLines.length > 0) {
     let html = '';
     for (const line of decision.relevantLines) {
-      html += `<div class="card-moving-item"><div>${line.text}</div></div>`;
+      // 优先使用 scene（场景化解读），fallback 到 text（短句）
+      const content = line.scene || line.text;
+      html += `<div class="card-moving-item"><div>${content}</div></div>`;
     }
     document.getElementById('cardMoving').innerHTML = html;
     movingWrapper.style.display = '';
@@ -108,10 +118,10 @@ function populateCards(hexName, judgment, lines, movingLines, decision, changedS
       '<div class="card-moving-still">此卦不变，没有动爻。<br>当前状态趋于稳定。</div>';
   }
 
-  // Card 6: 走向 → 本卦 outcome + 之卦 situation (如有动爻)
+  // Card 6: 走向 → 本卦 outcome + 之卦 situation (如有动爻)，不显示卦名
   let aftermath = judgment.outcome || '';
   if (changedSemantic && decision.hasMovement) {
-    aftermath += '\n\n之卦 ' + changedSemantic.hexName + ' · ' + (changedSemantic.judgment?.situation || '');
+    aftermath += '\n\n' + (changedSemantic.judgment?.situation || '');
   }
   document.getElementById('cardAftermath').textContent = aftermath;
 
@@ -243,7 +253,7 @@ async function populateTransitions(yaos, hexId, changedHexId) {
     if (!pill || !targetId || targetId === hexId) continue;
 
     try {
-      const sem = await fetchSemantic(targetId);
+      const sem = await fetchSemantic(targetId);  // transitions 用默认场域(decision)兜底
       if (sem) {
         pill.querySelector('.trans-name').textContent = sem.hexName || targetId;
         pill.querySelector('.trans-hint').textContent =
@@ -293,12 +303,12 @@ async function init() {
     const changedHexId = yaosToHexagramId(changedYaos);
     const hasMovement = movingLines.length > 0 && changedHexId !== hexId;
 
-    // 4. semantic: 本卦 + 之卦 (if changed)
-    const semantic = await fetchSemantic(hexId);
+    // 4. semantic: 本卦 + 之卦 (if changed)，按当前场域读取
+    const semantic = await fetchSemantic(hexId, s2Key);
     if (!semantic) throw new Error('Semantic data not found');
     let changedSemantic = null;
     if (hasMovement) {
-      changedSemantic = await fetchSemantic(changedHexId);
+      changedSemantic = await fetchSemantic(changedHexId, s2Key);
     }
 
     // 5. decision: structural summary

@@ -1,0 +1,56 @@
+{
+  "id": "Q54",
+  "hexName": "雷泽归妹",
+  "meta": {
+    "description": "",
+    "upper": "震",
+    "lower": "兑",
+    "element": "unknown"
+  },
+  "judgment": {
+    "situation": "雷在泽上，声入水中——一种主动的奔赴，带着感情。",
+    "movement": "从独立走向联合，从单干走向合作。",
+    "timing": "时机不算完美，但情感到了就做。",
+    "risk": "过度付出，对方未必同等回应。",
+    "outcome": "关系确立，但长期要看平衡。"
+  },
+  "lines": [
+    {
+      "line": 1,
+      "yaoCode": "",
+      "text": "妹妹陪嫁，随姐出嫁。",
+      "scene": ""
+    },
+    {
+      "line": 2,
+      "yaoCode": "",
+      "text": "独眼之人，勉力能看。",
+      "scene": ""
+    },
+    {
+      "line": 3,
+      "yaoCode": "",
+      "text": "妾室身份，等待正名。",
+      "scene": ""
+    },
+    {
+      "line": 4,
+      "yaoCode": "",
+      "text": "婚期延误，未能成嫁。",
+      "scene": ""
+    },
+    {
+      "line": 5,
+      "yaoCode": "",
+      "text": "帝乙嫁女，衣冠隆重。",
+      "scene": ""
+    },
+    {
+      "line": 6,
+      "yaoCode": "",
+      "text": "女子捧筐，空空无物。",
+      "scene": ""
+    }
+  ],
+  "summary": "登高一览众山小"
+}

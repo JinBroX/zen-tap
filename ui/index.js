@@ -4,7 +4,6 @@
 // 不参与: 卦象计算、语义判断
 
 import { generateSeed } from '/core/seed.js';
-import { S2_FIELDS } from '/s2/s2.js';
 
 // ---------- UID ----------
 function getUid() {
@@ -19,16 +18,28 @@ function getUid() {
 // ---------- S2 Field ----------
 let currentS2 = 'decision';
 
-function initS2Selector() {
-  const sel = document.getElementById('s2Selector');
-  if (!sel) return;
-  sel.addEventListener('click', (e) => {
-    const btn = e.target.closest('.s2-btn');
-    if (!btn) return;
-    e.stopPropagation();
-    sel.querySelectorAll('.s2-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentS2 = btn.dataset.s2;
+const S2_SEQUENCE = [
+  { key: 'decision', sentence: '此刻，我需要做一个决定' },
+  { key: 'relation', sentence: '此刻，我想看清这段关系' },
+  { key: 'career',   sentence: '此刻，我在思考事业方向' },
+  { key: 'wealth',   sentence: '此刻，我关心资源与财运' },
+];
+let s2Index = 0;
+
+function initS2Prompt() {
+  const prompt = document.getElementById('s2Prompt');
+  const sentence = document.getElementById('s2Sentence');
+  if (!prompt || !sentence) return;
+
+  prompt.addEventListener('click', (e) => {
+    e.stopPropagation();   // 不触发全局占卜
+    sentence.classList.add('switching');
+    setTimeout(() => {
+      s2Index = (s2Index + 1) % S2_SEQUENCE.length;
+      currentS2 = S2_SEQUENCE[s2Index].key;
+      sentence.textContent = S2_SEQUENCE[s2Index].sentence;
+      sentence.classList.remove('switching');
+    }, 280);
   });
 }
 
@@ -162,7 +173,7 @@ function initAuras() {
 // ---------- Bootstrap ----------
 document.addEventListener('DOMContentLoaded', () => {
   initAuras();
-  initS2Selector();
+  initS2Prompt();
   document.addEventListener('mousemove', recordMove, { passive: true });
   document.addEventListener('touchmove', recordMove, { passive: true });
   document.addEventListener('click', onTouch);

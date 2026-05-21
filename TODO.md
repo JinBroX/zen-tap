@@ -16,8 +16,11 @@
 - [x] 清理冗余：semantic/lines/ semantic/judgment/ frontend/旧文件
 - [x] s2 场域集成 — 首页场域选择器 + URL传递 + 结果页标签
 - [x] transitions 系统 — 错卦/综卦/互卦，结果页底部三个卦变卡片
+- [x] Phase 1: decision 场域数据升级 v3.0（yaoCode + scene + transitions）
+- [x] Phase 2: relation/career/wealth 三场域场景化爻辞生成（192 文件）
 
 ## 建议下一步
 
-1. **动爻显示优化** — Card 5 波动卡片在无动爻时显示更友好的占位内容
-2. **响应式优化** — 移动端进一步测试
+1. **场域切换前端体验** — 用户切换场域后动态更新爻辞 scene 展示
+2. **数据质量抽查** — 人工审查 10-20 卦的场域差异化质量
+3. **响应式优化** — 移动端进一步测试

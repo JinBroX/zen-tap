@@ -22,13 +22,26 @@ export function getChangedYaos(yaos) {
   return yaos.map(y => CHANGE[y]);
 }
 
+// bits → 文王卦序映射表（索引=bits值，值=文王序号）
+const BITS_TO_KING_WEN = [
+   2, 24,  7, 19, 15, 36, 46, 11,
+  16, 51, 40, 54, 62, 55, 32, 34,
+   8,  3, 29, 60, 39, 63, 48,  5,
+  45, 17, 47, 58, 31, 49, 28, 43,
+  23, 27,  4, 41, 52, 22, 18, 26,
+  35, 21, 64, 38, 56, 30, 50, 14,
+  20, 42, 59, 61, 53, 37, 57,  9,
+  12, 25,  6, 10, 33, 13, 44,  1
+];
+
 export function yaosToHexagramId(yaos) {
   let bits = 0;
   for (let i = 0; i < 6; i++) {
     const isYang = (yaos[i] === 7 || yaos[i] === 9) ? 1 : 0;
     bits |= (isYang << i);
   }
-  return 'Q' + (bits + 1);
+  const kingWen = BITS_TO_KING_WEN[bits];
+  return 'Q' + kingWen;
 }
 
 // Browser global fallback
