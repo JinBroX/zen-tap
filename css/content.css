@@ -138,7 +138,7 @@ body::before {
 
 .nav-s2-label:hover { opacity: 1; }
 
-.nav-s2-label.visible { opacity: 0.75; }
+.nav-s2-label.visible { opacity: 0.9; }
 
 /* ═══════════════ Divider ═══════════════ */
 
@@ -198,7 +198,14 @@ body::before {
   transform: translateY(0);
 }
 
-/* ── Summary (诗化总结) ── */
+/* ── Summary (诗化总结 · 第一屏) ── */
+
+.seg-summary {
+  min-height: 75vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .seg-summary .seg-body {
   font-size: clamp(1.8rem, 4.5vw, 2.6rem);
@@ -208,6 +215,7 @@ body::before {
   color: var(--ink-dim);
   text-align: center;
   animation: textFloat 8s ease-in-out infinite;
+  max-width: 480px;
 }
 
 /* ── Label ── */
