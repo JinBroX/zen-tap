@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>映照 · OpenSee</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Inter:wght@200;300;400;500&family=Noto+Serif+SC:wght@200;300;400&display=swap" rel="stylesheet">
@@ -30,80 +30,68 @@
     </nav>
     <div class="nav-divider" id="navDivider"></div>
 
-    <!-- Scroll Content -->
-    <div class="scroll" id="scroll">
+    <!-- Page Slider: 全屏翻页 -->
+    <div class="page-slider" id="pageSlider">
 
-      <!-- Section 1: 诗化总结 -->
-      <section class="seg seg-summary" id="segSummary">
-        <div class="seg-body" id="txtSummary"></div>
-      </section>
+      <!-- Page 0: 诗化总结 -->
+      <div class="page page-hero" data-page="0">
+        <div class="hero-text" id="txtSummary"></div>
+      </div>
 
-      <!-- Section 2: 局势 -->
-      <section class="seg" id="segSituation">
-        <div class="seg-label">局势</div>
-        <div class="seg-body" id="txtSituation"></div>
-      </section>
-
-      <!-- Section 3: 变化 -->
-      <section class="seg" id="segMovement">
-        <div class="seg-label">变化</div>
-        <div class="seg-body" id="txtMovement"></div>
-      </section>
-
-      <!-- Section 4: 时机 -->
-      <section class="seg" id="segTiming">
-        <div class="seg-label">时机</div>
-        <div class="seg-body" id="txtTiming"></div>
-      </section>
-
-      <!-- Section 5: 注意 -->
-      <section class="seg" id="segRisk">
-        <div class="seg-label">注意</div>
-        <div class="seg-body" id="txtRisk"></div>
-      </section>
-
-      <!-- Section 6: 波动 (仅动爻时显示) -->
-      <section class="seg" id="segWave" style="display:none">
-        <div class="seg-label">波动</div>
-        <div class="seg-body" id="txtWave"></div>
-      </section>
-
-      <!-- Section 7: 走向 -->
-      <section class="seg" id="segOutcome">
-        <div class="seg-label">走向</div>
-        <div class="seg-body" id="txtOutcome"></div>
-      </section>
-
-      <!-- Section 8: 参照视角 -->
-      <section class="seg" id="segRefs" style="display:none">
-        <div class="seg-label">参照</div>
-
-        <div class="ref-card" id="refOpposite" style="display:none">
-          <div class="ref-label">反面观察</div>
-          <div class="ref-body" id="txtRefOpposite"></div>
+      <!-- Page 1: 外局 -->
+      <div class="page page-card" data-page="1">
+        <div class="card">
+          <div class="card-label">外 局</div>
+          <div class="card-text" id="txtLandscape"></div>
         </div>
+      </div>
 
-        <div class="ref-card" id="refReverse" style="display:none">
-          <div class="ref-label">倒转观察</div>
-          <div class="ref-body" id="txtRefReverse"></div>
+      <!-- Page 2: 内观 -->
+      <div class="page page-card" data-page="2">
+        <div class="card">
+          <div class="card-label">内 观</div>
+          <div class="card-text" id="txtInner"></div>
         </div>
+      </div>
 
-        <div class="ref-card" id="refMutual" style="display:none">
-          <div class="ref-label">内在结构</div>
-          <div class="ref-body" id="txtRefMutual"></div>
+      <!-- Page 3: 枢机 -->
+      <div class="page page-card" data-page="3">
+        <div class="card">
+          <div class="card-label">枢 机</div>
+          <div class="card-text" id="txtPivot"></div>
         </div>
+      </div>
 
-        <div class="ref-card" id="refChanged" style="display:none">
-          <div class="ref-label">变化方向</div>
-          <div class="ref-body" id="txtRefChanged"></div>
+      <!-- Page 4: 趋向 -->
+      <div class="page page-card" data-page="4">
+        <div class="card">
+          <div class="card-label">趋 向</div>
+          <div class="card-text" id="txtEvolution"></div>
         </div>
-      </section>
+      </div>
+
+      <!-- Page 5: 结尾 -->
+      <div class="page page-footer" data-page="5">
+        <div class="footer-text">回到当下</div>
+        <a class="footer-link" href="/">重新观察</a>
+      </div>
 
     </div>
 
-    <!-- Footer -->
-    <div class="footer">
-      <a href="/">重新观察</a>
+    <!-- Page Indicator -->
+    <div class="page-indicator" id="pageIndicator">
+      <div class="dot active" data-page="0"></div>
+      <div class="dot" data-page="1"></div>
+      <div class="dot" data-page="2"></div>
+      <div class="dot" data-page="3"></div>
+      <div class="dot" data-page="4"></div>
+      <div class="dot" data-page="5"></div>
+    </div>
+
+    <!-- Scroll Hint -->
+    <div class="scroll-hint" id="scrollHint">
+      <div class="scroll-hint-arrow"></div>
+      <div class="scroll-hint-text">上 滑</div>
     </div>
 
   </div>
